@@ -1,10 +1,12 @@
+const placesList = document.querySelector(".places__list");
+const cardTemplate = document.querySelector("#card-template").content;
+
 const createCard = (cardData, removeCallback) => {
   const link = cardData.link || "https://source.unsplash.com/random";
   const name = cardData.name || "Нет данных";
   const alt =
     cardData.link && cardData.name ? name : "Не удалось загрузить изображение";
 
-  const cardTemplate = document.querySelector("#card-template").content;
   const card = cardTemplate.querySelector(".card").cloneNode(true);
 
   const cardImage = card.querySelector(".card__image");
@@ -21,12 +23,10 @@ const createCard = (cardData, removeCallback) => {
 };
 
 const removeCallback = (event) => {
-  event.target.parentElement.remove();
+  event.target.closest(".card").remove();
 };
 
 const addCard = (card) => {
-  const placesList = document.querySelector(".places__list");
-
   placesList.append(card);
 };
 
