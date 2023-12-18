@@ -22,7 +22,7 @@ const createCard = (cardData, removeCallback) => {
   return card;
 };
 
-const removeCallback = (event) => {
+const cardRemoveCallback = (event) => {
   event.target.closest(".card").remove();
 };
 
@@ -30,6 +30,4 @@ const addCard = (card) => {
   placesList.append(card);
 };
 
-initialCards.forEach((cardData) => {
-  addCard(createCard(cardData, removeCallback));
-});
+export { createCard, cardRemoveCallback, addCard };
