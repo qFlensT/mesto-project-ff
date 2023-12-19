@@ -1,66 +1,10 @@
-// import "./pages/index.css";
-
-// import initialCards from "./components/cards/initialCards";
-// import {
-//   addCard,
-//   createCard,
-//   cardRemoveCallback,
-// } from "./components/cards/cards";
-
-// import { closeModal, showModal } from "./components/modal/modal";
-// import * as ModalTypes from "./components/modal/ModalTypes";
-
-// const editButton = document.querySelector(".profile__edit-button");
-// const newCardButton = document.querySelector(".profile__add-button");
-// const placesList = document.querySelector(".places__list");
-
-// initialCards.forEach((cardData) => {
-//   addCard(createCard(cardData, cardRemoveCallback));
-// });
-
-// editButton.addEventListener("click", () => {
-//   showModal(ModalTypes.MODAL_EDIT);
-//   document.addEventListener("keydown", keydownHandler);
-// });
-
-// newCardButton.addEventListener("click", () => {
-//   showModal(ModalTypes.MODAL_NEW_CARD);
-//   document.addEventListener("keydown", keydownHandler);
-// });
-
-// placesList.addEventListener("click", (evt) => {
-//   if (!evt.target.classList.contains("card__image")) {
-//     return;
-//   }
-
-//   const imgSrc = evt.target.src;
-//   showModal(ModalTypes.MODAL_IMAGE, imgSrc);
-//   document.addEventListener("keydown", keydownHandler);
-// });
-
-// document.addEventListener("click", (evt) => {
-//   if (
-//     evt.target.classList.contains("popup__close") ||
-//     evt.target.classList.contains("popup")
-//   ) {
-//     closeModal();
-//   }
-// });
-
-// function keydownHandler(evt) {
-//   if (evt.key.toLowerCase() === "escape") {
-//     closeModal();
-//   }
-//   document.removeEventListener("keydown", keydownHandler);
-// }
-
-// document.addEventListener("keydown", keydownHandler);
-
 import {
+  addCard,
   cardLikeCallback,
   cardRemoveCallback,
   createCard,
 } from "./components/cards";
+import { closeModal, openModal } from "./components/modal";
 import "./pages/index.css";
 
 const cards = [
@@ -92,18 +36,115 @@ const cards = [
 
 const placesList = document.querySelector(".places__list");
 
+const modals = Array.from(document.querySelectorAll(".popup"));
+
 const editButton = document.querySelector(".profile__edit-button");
-const modalEdit = document.querySelector(".popup_type_edit");
+const modalEdit = modals.find((modal) =>
+  modal.classList.contains("popup_type_edit")
+);
 const modalEditForm = document.forms["edit-profile"];
 
 const newCardButton = document.querySelector(".profile__add-button");
-const modalNewCard = document.querySelector(".popup_type_new-card");
+const modalNewCard = modals.find((modal) =>
+  modal.classList.contains("popup_type_new-card")
+);
 const modalNewCardForm = document.forms["new-place"];
 
-const modalImage = document.querySelector(".popup_type_image");
+const modalImage = modals.find((modal) =>
+  modal.classList.contains("popup_type_image")
+);
 const modalImageImg = modalImage.querySelector(".popup__image");
 const modalImageCaption = modalImage.querySelector(".popup__caption");
 
+/**
+ * @param {HTMLElement} modal
+ */
+const applyModalHotkeyCloseListener = (modal) => {
+  /**
+   * @param {KeyboardEvent} event
+   */
+  const modalHotkeyCloseCallback = (event) => {
+    if (event.key.toLowerCase() === "escape") {
+      closeModal(modal);
+    }
+    document.removeEventListener("keydown", modalHotkeyCloseCallback);
+  };
+
+  document.addEventListener("keydown", modalHotkeyCloseCallback);
+};
+
 cards.forEach((card) => {
-  placesList.append(createCard(card, cardRemoveCallback, cardLikeCallback));
+  addCard(
+    placesList,
+    createCard(card, cardRemoveCallback, cardLikeCallback),
+    "end"
+  );
 });
+
+editButton.addEventListener("click", () => {
+  modalEditForm.name.value =
+    document.querySelector(".profile__title").textContent;
+
+  modalEditForm.description.value = document.querySelector(
+    ".profile__description"
+  ).textContent;
+
+  openModal(modalEdit);
+  applyModalHotkeyCloseListener(modalEdit);
+});
+
+modalEditForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  document.querySelector(".profile__title").textContent =
+    modalEditForm.name.value;
+  document.querySelector(".profile__description").textContent =
+    modalEditForm.description.value;
+
+  closeModal(modalEdit);
+});
+
+newCardButton.addEventListener("click", () => {
+  openModal(modalNewCard);
+  applyModalHotkeyCloseListener(modalNewCard);
+});
+
+modalNewCardForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const cardData = {
+    name: modalNewCardForm["place-name"].value,
+    link: modalNewCardForm["link"].value,
+  };
+
+  addCard(
+    placesList,
+    createCard(cardData, cardRemoveCallback, cardLikeCallback)
+  );
+
+  modalNewCardForm.reset();
+  closeModal(modalNewCard);
+});
+
+placesList.addEventListener("click", (event) => {
+  if (!event.target.classList.contains("card__image")) {
+    return;
+  }
+  modalImageImg.src = event.target.src;
+  modalImageCaption.textContent = event.target
+    .closest(".card")
+    .querySelector(".card__description").textContent;
+
+  openModal(modalImage);
+  applyModalHotkeyCloseListener(modalImage);
+});
+
+modals.forEach((modal) =>
+  modal.addEventListener("click", (event) => {
+    if (
+      event.target.classList.contains("popup__close") ||
+      event.target.classList.contains("popup")
+    ) {
+      closeModal(modal);
+    }
+  })
+);

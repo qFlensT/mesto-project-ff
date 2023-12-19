@@ -1,7 +1,7 @@
+// To use this component HTML must have `card` template
 const cardTemplate = document.querySelector("#card-template").content;
 
 /**
- *
  * @param {{link: string, name: string}} cardData
  * @param {function(PointerEvent): void} removeCallback
  * @returns {HTMLElement}
@@ -32,7 +32,19 @@ const createCard = (cardData, removeCallback, likeCallback) => {
 };
 
 /**
- *
+ * @param {HTMLElement} where - HTML Element where card will be added.
+ * @param {HTMLElement} card - card HTML Element, see `createCard`.
+ * @param {string} direction - determines where the card will be added, "start" - start of the list, "end" - end of the list, default value is "start"
+ */
+const addCard = (where, card, direction = "start") => {
+  if (direction.toLowerCase() === "end") {
+    where.append(card);
+  } else {
+    where.prepend(card);
+  }
+};
+
+/**
  * @param {PointerEvent} event
  */
 const cardRemoveCallback = (event) => {
@@ -40,11 +52,10 @@ const cardRemoveCallback = (event) => {
 };
 
 /**
- *
  * @param {PointerEvent} event
  */
 const cardLikeCallback = (event) => {
   event.target.classList.toggle("card__like-button_is-active");
 };
 
-export { createCard, cardRemoveCallback, cardLikeCallback };
+export { createCard, addCard, cardRemoveCallback, cardLikeCallback };
