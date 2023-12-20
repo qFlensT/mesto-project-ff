@@ -1,7 +1,18 @@
 /**
+ * @param {KeyboardEvent} event
+ */
+function closeByEsc(event) {
+  if (event.key === "Escape") {
+    const openedModal = document.querySelector(".popup_is-opened");
+    closeModal(openedModal);
+  }
+}
+
+/**
  * @param {HTMLElement} modal
  */
 const openModal = (modal) => {
+  document.addEventListener("keydown", closeByEsc);
   modal.classList.add("popup_is-opened");
 };
 
@@ -9,6 +20,7 @@ const openModal = (modal) => {
  * @param {HTMLElement} modal
  */
 const closeModal = (modal) => {
+  document.removeEventListener("keydown", closeByEsc);
   modal.classList.remove("popup_is-opened");
 };
 
@@ -30,27 +42,4 @@ const modalCloseCallback = (event) => {
   }
 };
 
-/**
- * @param {HTMLElement} modal
- */
-const applyModalHotkeyCloseListener = (modal) => {
-  /**
-   * @param {KeyboardEvent} event
-   */
-  const modalHotkeyCloseCallback = (event) => {
-    if (event.key.toLowerCase() === "escape") {
-      closeModal(modal);
-    }
-    document.removeEventListener("keydown", modalHotkeyCloseCallback);
-  };
-
-  document.addEventListener("keydown", modalHotkeyCloseCallback);
-};
-
-export {
-  openModal,
-  closeModal,
-  animateModal,
-  modalCloseCallback,
-  applyModalHotkeyCloseListener,
-};
+export { openModal, closeModal, animateModal, modalCloseCallback };
