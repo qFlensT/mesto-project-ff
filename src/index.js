@@ -1,4 +1,4 @@
-import { likeCard, deleteCard, createCard } from "./components/card";
+import { createCard } from "./components/card";
 import cards from "./components/cards";
 import {
   animateModal,
