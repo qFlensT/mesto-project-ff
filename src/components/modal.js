@@ -1,17 +1,22 @@
 /**
- * @param {HTMLElement} element
+ * @param {HTMLElement} modal
  */
-const openModal = (element) => {
-  element.classList.add("popup_is-animated");
-  setTimeout(() => element.classList.add("popup_is-opened"), 0);
+const openModal = (modal) => {
+  modal.classList.add("popup_is-opened");
 };
 
 /**
- * @param {HTMLElement} element
+ * @param {HTMLElement} modal
  */
-const closeModal = (element) => {
-  element.classList.remove("popup_is-opened");
-  setTimeout(() => element.classList.remove("popup_is-animated"), 0);
+const closeModal = (modal) => {
+  modal.classList.remove("popup_is-opened");
 };
 
-export { openModal, closeModal };
+/**
+ * @param {HTMLElement} modal
+ */
+const animateModal = (modal) => {
+  modal.classList.add("popup_is-animated");
+};
+
+export { openModal, closeModal, animateModal };

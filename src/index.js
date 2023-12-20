@@ -4,7 +4,7 @@ import {
   cardRemoveCallback,
   createCard,
 } from "./components/cards";
-import { closeModal, openModal } from "./components/modal";
+import { animateModal, closeModal, openModal } from "./components/modal";
 import "./pages/index.css";
 
 const cards = [
@@ -138,7 +138,11 @@ placesList.addEventListener("click", (event) => {
   applyModalHotkeyCloseListener(modalImage);
 });
 
-modals.forEach((modal) =>
+modals.forEach((modal) => {
+  // Setting animation
+  animateModal(modal);
+
+  // Setting close listener
   modal.addEventListener("click", (event) => {
     if (
       event.target.classList.contains("popup__close") ||
@@ -146,5 +150,5 @@ modals.forEach((modal) =>
     ) {
       closeModal(modal);
     }
-  })
-);
+  });
+});
