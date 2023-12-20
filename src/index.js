@@ -2,37 +2,17 @@ import {
   addCard,
   cardLikeCallback,
   cardRemoveCallback,
+  cards,
   createCard,
 } from "./components/cards";
-import { animateModal, closeModal, openModal } from "./components/modal";
+import {
+  animateModal,
+  closeModal,
+  openModal,
+  applyModalHotkeyCloseListener,
+  modalCloseCallback,
+} from "./components/modal";
 import "./pages/index.css";
-
-const cards = [
-  {
-    name: "Архыз",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/arkhyz.jpg",
-  },
-  {
-    name: "Челябинская область",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/chelyabinsk-oblast.jpg",
-  },
-  {
-    name: "Иваново",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/ivanovo.jpg",
-  },
-  {
-    name: "Камчатка",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kamchatka.jpg",
-  },
-  {
-    name: "Холмогорский район",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/kholmogorsky-rayon.jpg",
-  },
-  {
-    name: "Байкал",
-    link: "https://pictures.s3.yandex.net/frontend-developer/cards-compressed/baikal.jpg",
-  },
-];
 
 const placesList = document.querySelector(".places__list");
 
@@ -55,23 +35,6 @@ const modalImage = modals.find((modal) =>
 );
 const modalImageImg = modalImage.querySelector(".popup__image");
 const modalImageCaption = modalImage.querySelector(".popup__caption");
-
-/**
- * @param {HTMLElement} modal
- */
-const applyModalHotkeyCloseListener = (modal) => {
-  /**
-   * @param {KeyboardEvent} event
-   */
-  const modalHotkeyCloseCallback = (event) => {
-    if (event.key.toLowerCase() === "escape") {
-      closeModal(modal);
-    }
-    document.removeEventListener("keydown", modalHotkeyCloseCallback);
-  };
-
-  document.addEventListener("keydown", modalHotkeyCloseCallback);
-};
 
 cards.forEach((card) => {
   addCard(
@@ -143,12 +106,5 @@ modals.forEach((modal) => {
   animateModal(modal);
 
   // Setting close listener
-  modal.addEventListener("click", (event) => {
-    if (
-      event.target.classList.contains("popup__close") ||
-      event.target.classList.contains("popup")
-    ) {
-      closeModal(modal);
-    }
-  });
+  modal.addEventListener("click", modalCloseCallback);
 });
