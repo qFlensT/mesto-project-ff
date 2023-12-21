@@ -39,16 +39,12 @@ const createCard = (cardData, cardEventsHandlers) => {
   return card;
 };
 
-/**
- * @param {HTMLElement} card
- */
+/** @param {HTMLElement} card */
 const deleteCard = (card) => {
   card.remove();
 };
 
-/**
- * @param {HTMLElement} likeButton
- */
+/** @param {HTMLElement} likeButton */
 const likeCard = (likeButton) => {
   likeButton.classList.toggle("card__like-button_is-active");
 };

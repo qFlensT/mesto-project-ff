@@ -1,6 +1,4 @@
-/**
- * @param {KeyboardEvent} event
- */
+/** @param {KeyboardEvent} event */
 function closeByEsc(event) {
   if (event.key === "Escape") {
     const openedModal = document.querySelector(".popup_is-opened");
@@ -8,32 +6,24 @@ function closeByEsc(event) {
   }
 }
 
-/**
- * @param {HTMLElement} modal
- */
+/** @param {HTMLElement} modal */
 const openModal = (modal) => {
   document.addEventListener("keydown", closeByEsc);
   modal.classList.add("popup_is-opened");
 };
 
-/**
- * @param {HTMLElement} modal
- */
+/** @param {HTMLElement} modal */
 const closeModal = (modal) => {
   document.removeEventListener("keydown", closeByEsc);
   modal.classList.remove("popup_is-opened");
 };
 
-/**
- * @param {HTMLElement} modal
- */
+/** @param {HTMLElement} modal */
 const animateModal = (modal) => {
   modal.classList.add("popup_is-animated");
 };
 
-/**
- * @param {PointerEvent} event
- */
+/** @param {PointerEvent} event */
 const modalCloseCallback = (event) => {
   if (event.target.classList.contains("popup__close")) {
     closeModal(event.target.closest(".popup"));

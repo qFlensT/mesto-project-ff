@@ -27,15 +27,18 @@ const modalImageImg = modalImage.querySelector(".popup__image");
 const modalImageCaption = modalImage.querySelector(".popup__caption");
 
 const cardEventsHandlers = {
+  /** @param {{link: string, name: string}} data */
   imageClickHandler: (data) => {
     modalImageImg.src = data.link;
     modalImageCaption.textContent = data.name;
 
     openModal(modalImage);
   },
+  /** @param {HTMLElement} card */
   deleteButtonClickHandler: (card) => {
     deleteCard(card);
   },
+  /** @param {HTMLElement} likeButton */
   likeButtonClickHandler: (likeButton) => {
     likeCard(likeButton);
   },
