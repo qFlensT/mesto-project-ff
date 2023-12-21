@@ -3,28 +3,36 @@ const cardTemplate = document.querySelector("#card-template").content;
 
 /**
  * @param {{link: string, name: string}} cardData
- * @param {function(PointerEvent): void} imageClickHandler
+ * @param {{
+ *  imageClick: function({link: string, name: string}),
+ *  delete: function(HTMLElement),
+ *  like: function(HTMLElement)
+ * }} cardEventsHandlers
  * @returns {HTMLElement}
  */
-const createCard = (cardData, imageClickHandler) => {
-  const link = cardData.link;
-  const name = cardData.name;
-  const alt = name;
-
+const createCard = (cardData, cardEventsHandlers) => {
   const card = cardTemplate.querySelector(".card").cloneNode(true);
 
   const cardImage = card.querySelector(".card__image");
   const deleteButton = card.querySelector(".card__delete-button");
   const likeButton = card.querySelector(".card__like-button");
 
-  cardImage.src = link;
-  cardImage.alt = alt;
-  cardImage.addEventListener("click", imageClickHandler);
+  cardImage.src = cardData.link;
+  cardImage.alt = cardData.name;
+  cardImage.addEventListener("click", () => {
+    //giving only necessary fields
+    cardEventsHandlers.imageClick({
+      link: cardData.link,
+      name: cardData.name,
+    });
+  });
 
-  deleteButton.addEventListener("click", () => deleteCard(card));
-  likeButton.addEventListener("click", () => likeCard(likeButton));
+  deleteButton.addEventListener("click", () => cardEventsHandlers.delete(card));
+  likeButton.addEventListener("click", () =>
+    cardEventsHandlers.like(likeButton)
+  );
 
-  card.querySelector(".card__title").textContent = name;
+  card.querySelector(".card__title").textContent = cardData.name;
 
   return card;
 };

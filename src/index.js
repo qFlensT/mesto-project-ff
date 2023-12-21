@@ -1,4 +1,4 @@
-import { createCard } from "./components/card";
+import { createCard, deleteCard, likeCard } from "./components/card";
 import cards from "./components/cards";
 import {
   animateModal,
@@ -39,20 +39,23 @@ const addCard = (where, card, direction = "start") => {
   }
 };
 
-/**
- * @param {PointerEvent} event
- */
-const cardImageClickHandler = (event) => {
-  modalImageImg.src = event.target.src;
-  modalImageCaption.textContent = event.target
-    .closest(".card")
-    .querySelector(".card__description").textContent;
+const cardEventHandlers = {
+  imageClick: (data) => {
+    modalImageImg.src = data.link;
+    modalImageCaption.textContent = data.name;
 
-  openModal(modalImage);
+    openModal(modalImage);
+  },
+  delete: (card) => {
+    deleteCard(card);
+  },
+  like: (likeButton) => {
+    likeCard(likeButton);
+  },
 };
 
 cards.forEach((card) => {
-  addCard(placesList, createCard(card, cardImageClickHandler), "end");
+  addCard(placesList, createCard(card, cardEventHandlers), "end");
 });
 
 editButton.addEventListener("click", () => {
@@ -82,7 +85,7 @@ modalNewCardForm.addEventListener("submit", (event) => {
     link: modalNewCardForm["link"].value,
   };
 
-  addCard(placesList, createCard(cardData, cardImageClickHandler));
+  addCard(placesList, createCard(cardData, cardEventHandlers));
 
   modalNewCardForm.reset();
   closeModal(modalNewCard);
