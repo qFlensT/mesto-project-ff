@@ -4,9 +4,9 @@ const cardTemplate = document.querySelector("#card-template").content;
 /**
  * @param {{link: string, name: string}} cardData
  * @param {{
- *  imageClick: function({link: string, name: string}),
- *  delete: function(HTMLElement),
- *  like: function(HTMLElement)
+ *  imageClickHandler: function({link: string, name: string}),
+ *  deleteButtonClickHandler: function(HTMLElement),
+ *  likeButtonClickHandler: function(HTMLElement)
  * }} cardEventsHandlers
  * @returns {HTMLElement}
  */
@@ -21,15 +21,17 @@ const createCard = (cardData, cardEventsHandlers) => {
   cardImage.alt = cardData.name;
   cardImage.addEventListener("click", () => {
     //giving only necessary fields
-    cardEventsHandlers.imageClick({
+    cardEventsHandlers.imageClickHandler({
       link: cardData.link,
       name: cardData.name,
     });
   });
 
-  deleteButton.addEventListener("click", () => cardEventsHandlers.delete(card));
+  deleteButton.addEventListener("click", () =>
+    cardEventsHandlers.deleteButtonClickHandler(card)
+  );
   likeButton.addEventListener("click", () =>
-    cardEventsHandlers.like(likeButton)
+    cardEventsHandlers.likeButtonClickHandler(likeButton)
   );
 
   card.querySelector(".card__title").textContent = cardData.name;

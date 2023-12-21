@@ -26,36 +26,23 @@ const modalImage = document.querySelector(".popup_type_image");
 const modalImageImg = modalImage.querySelector(".popup__image");
 const modalImageCaption = modalImage.querySelector(".popup__caption");
 
-/**
- * @param {HTMLElement} where - HTML Element where card will be added.
- * @param {HTMLElement} card - card HTML Element, see `createCard`.
- * @param {string} direction - determines where the card will be added, "start" - start of the list, "end" - end of the list, default value is "start"
- */
-const addCard = (where, card, direction = "start") => {
-  if (direction.toLowerCase() === "end") {
-    where.append(card);
-  } else {
-    where.prepend(card);
-  }
-};
-
-const cardEventHandlers = {
-  imageClick: (data) => {
+const cardEventsHandlers = {
+  imageClickHandler: (data) => {
     modalImageImg.src = data.link;
     modalImageCaption.textContent = data.name;
 
     openModal(modalImage);
   },
-  delete: (card) => {
+  deleteButtonClickHandler: (card) => {
     deleteCard(card);
   },
-  like: (likeButton) => {
+  likeButtonClickHandler: (likeButton) => {
     likeCard(likeButton);
   },
 };
 
 cards.forEach((card) => {
-  addCard(placesList, createCard(card, cardEventHandlers), "end");
+  placesList.append(createCard(card, cardEventsHandlers));
 });
 
 editButton.addEventListener("click", () => {
@@ -85,7 +72,7 @@ modalNewCardForm.addEventListener("submit", (event) => {
     link: modalNewCardForm["link"].value,
   };
 
-  addCard(placesList, createCard(cardData, cardEventHandlers));
+  placesList.prepend(createCard(cardData, cardEventsHandlers));
 
   modalNewCardForm.reset();
   closeModal(modalNewCard);
