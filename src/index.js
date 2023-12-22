@@ -30,6 +30,7 @@ const cardEventsHandlers = {
   /** @param {{link: string, name: string}} data */
   imageClickHandler: (data) => {
     modalImageImg.src = data.link;
+    modalImageImg.alt = data.name;
     modalImageCaption.textContent = data.name;
 
     openModal(modalImage);
