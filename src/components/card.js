@@ -5,10 +5,10 @@ const cardTemplate = document.querySelector("#card-template").content;
  * @param {{link: string, name: string}} cardData
  * @param {{
  *  imageClickHandler: function({link: string, name: string}),
- *  deleteButtonClickHandler: function(HTMLElement),
- *  likeButtonClickHandler: function(HTMLElement)
+ *  deleteButtonClickHandler: function(HTMLDivElement),
+ *  likeButtonClickHandler: function(HTMLButtonElement)
  * }} cardEventsHandlers
- * @returns {HTMLElement}
+ * @returns {HTMLDivElement}
  */
 const createCard = (cardData, cardEventsHandlers) => {
   const card = cardTemplate.querySelector(".card").cloneNode(true);
@@ -39,12 +39,12 @@ const createCard = (cardData, cardEventsHandlers) => {
   return card;
 };
 
-/** @param {HTMLElement} card */
+/** @param {HTMLDivElement} card */
 const deleteCard = (card) => {
   card.remove();
 };
 
-/** @param {HTMLElement} likeButton */
+/** @param {HTMLButtonElement} likeButton */
 const likeCard = (likeButton) => {
   likeButton.classList.toggle("card__like-button_is-active");
 };

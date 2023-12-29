@@ -6,6 +6,7 @@ import {
   openModal,
   modalCloseCallback,
 } from "./components/modal";
+import { enableValidation } from "./components/validation";
 import "./pages/index.css";
 
 const placesList = document.querySelector(".places__list");
@@ -35,14 +36,23 @@ const cardEventsHandlers = {
 
     openModal(modalImage);
   },
-  /** @param {HTMLElement} card */
+  /** @param {HTMLDivElement} card */
   deleteButtonClickHandler: (card) => {
     deleteCard(card);
   },
-  /** @param {HTMLElement} likeButton */
+  /** @param {HTMLButtonElement} likeButton */
   likeButtonClickHandler: (likeButton) => {
     likeCard(likeButton);
   },
+};
+
+const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible",
 };
 
 cards.forEach((card) => {
@@ -89,3 +99,5 @@ modals.forEach((modal) => {
   // Setting close listener
   modal.addEventListener("click", modalCloseCallback);
 });
+
+enableValidation(validationConfig);

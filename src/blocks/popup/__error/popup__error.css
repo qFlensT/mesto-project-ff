@@ -1,0 +1,16 @@
+.popup__error {
+  position: absolute;
+  opacity: 0;
+  color: #f00;
+  font-family: "Inter", Arial, sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  font-style: normal;
+  line-height: normal;
+  inset-inline-start: 36px;
+  inset-block-start: 143px;
+}
+
+.popup__error:last-of-type {
+  inset-block-start: 200px;
+}
