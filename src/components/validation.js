@@ -1,83 +1,145 @@
-const showInputError = (input, errorClass) => {
-  input.classList.add(errorClass);
+/**
+ * @param {HTMLElement} element
+ * @param {string} className
+ * @param {boolean} condition
+ */
+const toggleClass = (element, className, condition) => {
+  condition
+    ? element.classList.add(className)
+    : element.classList.remove(className);
 };
 
-const hideInputError = (input, errorClass) => {
-  input.classList.remove(errorClass);
+/**
+ * @param {HTMLFormElement} formElement
+ * @param {string} inputId
+ * @returns {HTMLSpanElement}
+ */
+const getErrorElement = (formElement, inputId) => {
+  return formElement.querySelector(`#${inputId}-error`);
 };
 
-const showErrorElement = (
+/**
+ * @param {HTMLInputElement} inputElement
+ * @returns {boolean}
+ */
+const checkInputValidity = (inputElement) => inputElement.validity.valid;
+
+/**
+ * @param {HTMLInputElement} inputElement
+ * @returns {string}
+ */
+const getErrorMessage = (inputElement) => {
+  return inputElement.validity.patternMismatch
+    ? inputElement.dataset.errorMessage
+    : inputElement.validationMessage;
+};
+
+/**
+ * Ошибка не будет отображаться если в аргумент `message` была подана пустая строка
+ *
+ * @param {HTMLFormElement} formElement
+ * @param {HTMLInputElement} inputElement
+ * @param {string} errorClass
+ * @param {string} message
+ */
+const toggleErrorActiveState = (
   formElement,
   inputElement,
-  errorMessage,
-  errorClass
+  errorClass,
+  message
 ) => {
-  const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
-  errorElement.textContent = errorMessage;
-  errorElement.classList.add(errorClass);
+  const errorElement = getErrorElement(formElement, inputElement.id);
+  errorElement.textContent = message;
+  toggleClass(errorElement, errorClass, !!message);
 };
 
-const hideErrorElement = (formElement, inputElement, errorClass) => {
-  const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
-  errorElement.textContent = "";
-  errorElement.classList.remove(errorClass);
+/**
+ * @param {HTMLButtonElement} buttonElement
+ * @param {string} inactiveClass
+ * @param {boolean} activeState
+ */
+const toggleButtonActiveState = (buttonElement, inactiveClass, activeState) => {
+  toggleClass(buttonElement, inactiveClass, !activeState);
+  buttonElement.disabled = activeState;
 };
 
-const isInputPatternMismatch = (input) => {
-  return input.validity.patternMismatch;
-};
+/**
+ * @param {HTMLInputElement} inputElement
+ * @param {string} errorClass
+ * @param {boolean} errorState
+ */
+const toggleInputErrorState = (inputElement, errorClass, errorState) =>
+  toggleClass(inputElement, errorClass, errorState);
 
-const isInputValid = (input) => {
-  return input.validity.valid;
-};
-
-const toggleButtonState = (inputList, buttonElement, inactiveButtonClass) => {
-  if (inputList.every((input) => isInputValid(input))) {
-    buttonElement.classList.remove(inactiveButtonClass);
-    buttonElement.disabled = false;
-  } else {
-    buttonElement.classList.add(inactiveButtonClass);
-    buttonElement.disabled = true;
-  }
-};
-
-const toggleError = (form, input, validationConfig) => {
-  if (!isInputValid(input)) {
-    const errorMessage = isInputPatternMismatch(input)
-      ? input.dataset.errorMessage
-      : input.validationMessage;
-
-    showInputError(input, validationConfig.inputErrorClass);
-    showErrorElement(form, input, errorMessage, validationConfig.errorClass);
-  } else {
-    hideErrorElement(form, input, validationConfig.errorClass);
-    hideInputError(input, validationConfig.inputErrorClass);
-  }
-};
-
-const setEventListeners = (form, validationConfig) => {
-  const inputList = Array.from(
-    form.querySelectorAll(validationConfig.inputSelector)
+/**
+ * @param {HTMLInputElement} inputElement
+ * @param {string} errorClass
+ */
+const updateInputErrorState = (inputElement, errorClass) =>
+  toggleInputErrorState(
+    inputElement,
+    errorClass,
+    !checkInputValidity(inputElement)
   );
 
-  const submitButton = form.querySelector(
+/**
+ * @param {HTMLFormElement} formElement
+ * @param {HTMLInputElement} inputElement
+ * @param {string} errorClass
+ */
+const updateErrorActiveState = (formElement, inputElement, errorClass) =>
+  toggleErrorActiveState(
+    formElement,
+    inputElement,
+    errorClass,
+    getErrorMessage(inputElement)
+  );
+
+/**
+ *
+ * @param {HTMLButtonElement} buttonElement
+ * @param {Array<HTMLInputElement>} inputElements
+ * @param {string} inactiveClass
+ */
+const updateButtonActiveState = (buttonElement, inputElements, inactiveClass) =>
+  toggleButtonActiveState(
+    buttonElement,
+    inactiveClass,
+    inputElements.every(checkInputValidity)
+  );
+
+/**
+ * @param {HTMLFormElement} formElement
+ * @param {{
+ *  formSelector: string,
+ *  inputSelector: string,
+ *  submitButtonSelector: string,
+ *  inactiveButtonClass: string,
+ *  inputErrorClass: string,
+ *  errorClass: string
+ * }} validationConfig
+ */
+const setFormEventListeners = (formElement, validationConfig) => {
+  const inputElements = Array.from(
+    formElement.querySelectorAll(validationConfig.inputSelector)
+  );
+  const submitButtonElement = formElement.querySelector(
     validationConfig.submitButtonSelector
   );
 
-  toggleButtonState(
-    inputList,
-    submitButton,
-    validationConfig.inactiveButtonClass
-  );
-
-  inputList.forEach((input) => {
-    input.addEventListener("input", () => {
-      toggleButtonState(
-        inputList,
-        submitButton,
+  inputElements.forEach((inputElement) => {
+    inputElement.addEventListener("input", () => {
+      updateInputErrorState(inputElement, validationConfig.inputErrorClass);
+      updateErrorActiveState(
+        formElement,
+        inputElement,
+        validationConfig.errorClass
+      );
+      updateButtonActiveState(
+        submitButtonElement,
+        inputElements,
         validationConfig.inactiveButtonClass
       );
-      toggleError(form, input, validationConfig);
     });
   });
 };
@@ -96,12 +158,48 @@ const enableValidation = (validationConfig) => {
   const forms = Array.from(
     document.querySelectorAll(validationConfig.formSelector)
   );
-
-  forms.forEach((form) => {
-    setEventListeners(form, validationConfig);
-  });
+  forms.forEach((form) => setFormEventListeners(form, validationConfig));
 };
 
-const clearValidation = () => {};
+/**
+ *
+ * @param {HTMLFormElement} formElement
+ * @param {{
+ *  formSelector: string,
+ *  inputSelector: string,
+ *  submitButtonSelector: string,
+ *  inactiveButtonClass: string,
+ *  inputErrorClass: string,
+ *  errorClass: string
+ * }} validationConfig
+ */
+const clearValidation = (formElement, validationConfig) => {
+  const inputElements = Array.from(
+    formElement.querySelectorAll(validationConfig.inputSelector)
+  );
+  const submitButtonElement = formElement.querySelector(
+    validationConfig.submitButtonSelector
+  );
+
+  inputElements.forEach((inputElement) => {
+    toggleInputErrorState(
+      inputElement,
+      validationConfig.inputErrorClass,
+      false
+    );
+    toggleErrorActiveState(
+      formElement,
+      inputElement,
+      validationConfig.errorClass,
+      ""
+    );
+  });
+
+  toggleButtonActiveState(
+    submitButtonElement,
+    validationConfig.inactiveButtonClass,
+    false
+  );
+};
 
 export { enableValidation, clearValidation };

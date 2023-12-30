@@ -6,7 +6,7 @@ import {
   openModal,
   modalCloseCallback,
 } from "./components/modal";
-import { enableValidation } from "./components/validation";
+import { clearValidation, enableValidation } from "./components/validation";
 import "./pages/index.css";
 
 const placesList = document.querySelector(".places__list");
@@ -60,6 +60,8 @@ cards.forEach((card) => {
 });
 
 editButton.addEventListener("click", () => {
+  clearValidation(modalEditForm, validationConfig);
+
   modalEditForm.name.value = profileTitle.textContent;
   modalEditForm.description.value = profileDescription.textContent;
 
@@ -76,6 +78,7 @@ modalEditForm.addEventListener("submit", (event) => {
 });
 
 newCardButton.addEventListener("click", () => {
+  clearValidation(modalNewCardForm, validationConfig);
   openModal(modalNewCard);
 });
 
