@@ -58,7 +58,7 @@ const toggleErrorActiveState = (
  */
 const toggleButtonActiveState = (buttonElement, inactiveClass, activeState) => {
   toggleClass(buttonElement, inactiveClass, !activeState);
-  buttonElement.disabled = activeState;
+  buttonElement.disabled = !activeState;
 };
 
 /**
