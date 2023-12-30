@@ -9,40 +9,43 @@ import {
 import { clearValidation, enableValidation } from "./components/validation";
 import "./pages/index.css";
 
-const placesList = document.querySelector(".places__list");
-const profileTitle = document.querySelector(".profile__title");
-const profileDescription = document.querySelector(".profile__description");
+const placesListElement = document.querySelector(".places__list");
+const profileTitleElement = document.querySelector(".profile__title");
+const profileDescriptionElement = document.querySelector(
+  ".profile__description"
+);
 
-const modals = Array.from(document.querySelectorAll(".popup"));
+const modalElements = Array.from(document.querySelectorAll(".popup"));
 
-const editButton = document.querySelector(".profile__edit-button");
-const modalEdit = document.querySelector(".popup_type_edit");
-const modalEditForm = document.forms["edit-profile"];
+const editButtonElement = document.querySelector(".profile__edit-button");
+const modalEditElement = document.querySelector(".popup_type_edit");
+const modalEditFormElement = document.forms["edit-profile"];
 
-const newCardButton = document.querySelector(".profile__add-button");
-const modalNewCard = document.querySelector(".popup_type_new-card");
-const modalNewCardForm = document.forms["new-place"];
+const newCardButtonElement = document.querySelector(".profile__add-button");
+const modalNewCardElement = document.querySelector(".popup_type_new-card");
+const modalNewCardFormElement = document.forms["new-place"];
 
-const modalImage = document.querySelector(".popup_type_image");
-const modalImageImg = modalImage.querySelector(".popup__image");
-const modalImageCaption = modalImage.querySelector(".popup__caption");
+const modalImageElement = document.querySelector(".popup_type_image");
+const modalImageImgElement = modalImageElement.querySelector(".popup__image");
+const modalImageCaptionElement =
+  modalImageElement.querySelector(".popup__caption");
 
 const cardEventsHandlers = {
   /** @param {{link: string, name: string}} data */
   imageClickHandler: (data) => {
-    modalImageImg.src = data.link;
-    modalImageImg.alt = data.name;
-    modalImageCaption.textContent = data.name;
+    modalImageImgElement.src = data.link;
+    modalImageImgElement.alt = data.name;
+    modalImageCaptionElement.textContent = data.name;
 
-    openModal(modalImage);
+    openModal(modalImageElement);
   },
-  /** @param {HTMLDivElement} card */
-  deleteButtonClickHandler: (card) => {
-    deleteCard(card);
+  /** @param {HTMLDivElement} cardElement */
+  deleteButtonClickHandler: (cardElement) => {
+    deleteCard(cardElement);
   },
-  /** @param {HTMLButtonElement} likeButton */
-  likeButtonClickHandler: (likeButton) => {
-    likeCard(likeButton);
+  /** @param {HTMLButtonElement} likeButtonElement */
+  likeButtonClickHandler: (likeButtonElement) => {
+    likeCard(likeButtonElement);
   },
 };
 
@@ -56,51 +59,51 @@ const validationConfig = {
 };
 
 cards.forEach((card) => {
-  placesList.append(createCard(card, cardEventsHandlers));
+  placesListElement.append(createCard(card, cardEventsHandlers));
 });
 
-editButton.addEventListener("click", () => {
-  clearValidation(modalEditForm, validationConfig);
+editButtonElement.addEventListener("click", () => {
+  clearValidation(modalEditFormElement, validationConfig);
 
-  modalEditForm.name.value = profileTitle.textContent;
-  modalEditForm.description.value = profileDescription.textContent;
+  modalEditFormElement.name.value = profileTitleElement.textContent;
+  modalEditFormElement.description.value =
+    profileDescriptionElement.textContent;
 
-  openModal(modalEdit);
+  openModal(modalEditElement);
 });
 
-modalEditForm.addEventListener("submit", (event) => {
+modalEditFormElement.addEventListener("submit", (event) => {
   event.preventDefault();
 
-  profileTitle.textContent = modalEditForm.name.value;
-  profileDescription.textContent = modalEditForm.description.value;
+  profileTitleElement.textContent = modalEditFormElement.name.value;
+  profileDescriptionElement.textContent =
+    modalEditFormElement.description.value;
 
-  closeModal(modalEdit);
+  closeModal(modalEditElement);
 });
 
-newCardButton.addEventListener("click", () => {
-  clearValidation(modalNewCardForm, validationConfig);
-  openModal(modalNewCard);
+newCardButtonElement.addEventListener("click", () => {
+  clearValidation(modalNewCardFormElement, validationConfig);
+  openModal(modalNewCardElement);
 });
 
-modalNewCardForm.addEventListener("submit", (event) => {
+modalNewCardFormElement.addEventListener("submit", (event) => {
   event.preventDefault();
   const cardData = {
-    name: modalNewCardForm["place-name"].value,
-    link: modalNewCardForm["link"].value,
+    name: modalNewCardFormElement["place-name"].value,
+    link: modalNewCardFormElement["link"].value,
   };
 
-  placesList.prepend(createCard(cardData, cardEventsHandlers));
+  placesListElement.prepend(createCard(cardData, cardEventsHandlers));
 
-  modalNewCardForm.reset();
-  closeModal(modalNewCard);
+  modalNewCardFormElement.reset();
+  closeModal(modalNewCardElement);
 });
 
-modals.forEach((modal) => {
-  // Setting animation
-  animateModal(modal);
+modalElements.forEach((modalElement) => {
+  animateModal(modalElement);
 
-  // Setting close listener
-  modal.addEventListener("click", modalCloseCallback);
+  modalElement.addEventListener("click", modalCloseCallback);
 });
 
 enableValidation(validationConfig);
