@@ -1,5 +1,5 @@
 // To use this component HTML must have `card` template
-const cardTemplate = document.querySelector("#card-template").content;
+const cardTemplateElement = document.querySelector("#card-template").content;
 
 /**
  * @param {{link: string, name: string}} cardData
@@ -11,15 +11,17 @@ const cardTemplate = document.querySelector("#card-template").content;
  * @returns {HTMLDivElement}
  */
 const createCard = (cardData, cardEventsHandlers) => {
-  const card = cardTemplate.querySelector(".card").cloneNode(true);
+  const cardElement = cardTemplateElement
+    .querySelector(".card")
+    .cloneNode(true);
 
-  const cardImage = card.querySelector(".card__image");
-  const deleteButton = card.querySelector(".card__delete-button");
-  const likeButton = card.querySelector(".card__like-button");
+  const cardImageElement = cardElement.querySelector(".card__image");
+  const deleteButtonElement = cardElement.querySelector(".card__delete-button");
+  const likeButtonElement = cardElement.querySelector(".card__like-button");
 
-  cardImage.src = cardData.link;
-  cardImage.alt = cardData.name;
-  cardImage.addEventListener("click", () => {
+  cardImageElement.src = cardData.link;
+  cardImageElement.alt = cardData.name;
+  cardImageElement.addEventListener("click", () => {
     //giving only necessary fields
     cardEventsHandlers.imageClickHandler({
       link: cardData.link,
@@ -27,26 +29,26 @@ const createCard = (cardData, cardEventsHandlers) => {
     });
   });
 
-  deleteButton.addEventListener("click", () =>
-    cardEventsHandlers.deleteButtonClickHandler(card)
+  deleteButtonElement.addEventListener("click", () =>
+    cardEventsHandlers.deleteButtonClickHandler(cardElement)
   );
-  likeButton.addEventListener("click", () =>
-    cardEventsHandlers.likeButtonClickHandler(likeButton)
+  likeButtonElement.addEventListener("click", () =>
+    cardEventsHandlers.likeButtonClickHandler(likeButtonElement)
   );
 
-  card.querySelector(".card__title").textContent = cardData.name;
+  cardElement.querySelector(".card__title").textContent = cardData.name;
 
-  return card;
+  return cardElement;
 };
 
-/** @param {HTMLDivElement} card */
-const deleteCard = (card) => {
-  card.remove();
+/** @param {HTMLDivElement} cardElement */
+const deleteCard = (cardElement) => {
+  cardElement.remove();
 };
 
-/** @param {HTMLButtonElement} likeButton */
-const likeCard = (likeButton) => {
-  likeButton.classList.toggle("card__like-button_is-active");
+/** @param {HTMLButtonElement} likeButtonElement */
+const likeCard = (likeButtonElement) => {
+  likeButtonElement.classList.toggle("card__like-button_is-active");
 };
 
 export { createCard, deleteCard, likeCard };
