@@ -14,9 +14,8 @@ const toggleClass = (element, className, condition) => {
  * @param {string} inputId
  * @returns {HTMLSpanElement}
  */
-const getErrorElement = (formElement, inputId) => {
-  return formElement.querySelector(`#${inputId}-error`);
-};
+const getErrorElement = (formElement, inputId) =>
+  formElement.querySelector(`#${inputId}-error`);
 
 /**
  * @param {HTMLInputElement} inputElement
@@ -28,11 +27,10 @@ const checkInputValidity = (inputElement) => inputElement.validity.valid;
  * @param {HTMLInputElement} inputElement
  * @returns {string}
  */
-const getErrorMessage = (inputElement) => {
-  return inputElement.validity.patternMismatch
+const getErrorMessage = (inputElement) =>
+  inputElement.validity.patternMismatch
     ? inputElement.dataset.errorMessage
     : inputElement.validationMessage;
-};
 
 /**
  * Ошибка не будет отображаться если в аргумент `message` была подана пустая строка
