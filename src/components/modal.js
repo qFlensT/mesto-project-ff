@@ -1,26 +1,26 @@
 /** @param {KeyboardEvent} event */
 function closeByEsc(event) {
   if (event.key === "Escape") {
-    const openedModal = document.querySelector(".popup_is-opened");
-    closeModal(openedModal);
+    const openedModalElement = document.querySelector(".popup_is-opened");
+    closeModal(openedModalElement);
   }
 }
 
-/** @param {HTMLElement} modal */
-const openModal = (modal) => {
+/** @param {HTMLDivElement} modalElement */
+const openModal = (modalElement) => {
   document.addEventListener("keydown", closeByEsc);
-  modal.classList.add("popup_is-opened");
+  modalElement.classList.add("popup_is-opened");
 };
 
-/** @param {HTMLElement} modal */
-const closeModal = (modal) => {
+/** @param {HTMLDivElement} modalElement */
+const closeModal = (modalElement) => {
   document.removeEventListener("keydown", closeByEsc);
-  modal.classList.remove("popup_is-opened");
+  modalElement.classList.remove("popup_is-opened");
 };
 
-/** @param {HTMLElement} modal */
-const animateModal = (modal) => {
-  modal.classList.add("popup_is-animated");
+/** @param {HTMLDivElement} modalElement */
+const animateModal = (modalElement) => {
+  modalElement.classList.add("popup_is-animated");
 };
 
 /** @param {PointerEvent} event */
