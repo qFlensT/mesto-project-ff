@@ -1,6 +1,6 @@
 .popup__error {
   position: absolute;
-  opacity: 0;
+  visibility: hidden;
   color: #f00;
   font-family: "Inter", Arial, sans-serif;
   font-weight: 400;
@@ -11,6 +11,20 @@
   inset-block-start: 143px;
 }
 
+@media (width <= 568px) {
+  .popup__error {
+    inset-inline-start: 20px;
+    inset-block-start: 120px;
+  }
+}
+
 .popup__error:last-of-type {
   inset-block-start: 200px;
+}
+
+@media (width <= 568px) {
+  .popup__error:last-of-type {
+    inset-inline-start: 20px;
+    inset-block-start: 120px;
+  }
 }
