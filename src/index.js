@@ -1,3 +1,4 @@
+import { getUserInfo } from "./components/api";
 import { createCard, deleteCard, likeCard } from "./components/card";
 import cards from "./components/cards";
 import {
@@ -10,10 +11,12 @@ import { clearValidation, enableValidation } from "./components/validation";
 import "./pages/index.css";
 
 const placesListElement = document.querySelector(".places__list");
+
 const profileTitleElement = document.querySelector(".profile__title");
 const profileDescriptionElement = document.querySelector(
   ".profile__description"
 );
+const profileImageElement = document.querySelector(".profile__image");
 
 const modalElements = Array.from(document.querySelectorAll(".popup"));
 
@@ -66,6 +69,18 @@ const validationConfig = {
   inputErrorClass: "popup__input_type_error",
   errorClass: "popup__error_visible",
 };
+
+getUserInfo()
+  .then((body) => {
+    profileTitleElement.textContent = body.name;
+    profileDescriptionElement.textContent = body.about;
+    profileImageElement.style.backgroundImage = `url(${body.avatar})`;
+  })
+  .catch((err) => {
+    profileTitleElement.textContent = "Ошибка загрузки";
+    profileDescriptionElement.textContent = "Ошибка загрузки";
+    console.log(err);
+  });
 
 cards.forEach((card) => {
   placesListElement.append(createCard(card, cardEventsHandlers));

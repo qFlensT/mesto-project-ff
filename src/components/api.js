@@ -51,14 +51,14 @@ const sendRequest = ({ method, path, body }) => {
  * Получает информацию о пользователе
  * @returns {Promise<UserInfo>}
  * */
-const getUserInfo = () =>
+export const getUserInfo = () =>
   sendRequest({ method: "GET", path: [API_COHORT_ID, "users", "me"] });
 
 /**
  * Получает начальные карточки
  * @returns {Promise<Array<CardInfo>>}
  */
-const getInitialCards = () =>
+export const getInitialCards = () =>
   sendRequest({ method: "GET", path: [API_COHORT_ID, "cards"] });
 
 /**
@@ -66,7 +66,7 @@ const getInitialCards = () =>
  * @param {{name: string, about: string}} body,
  * @returns {Promise<UserInfo>}
  */
-const editProfile = (body) =>
+export const editProfile = (body) =>
   sendRequest({
     method: "PATCH",
     path: [API_COHORT_ID, "users", "me"],
@@ -78,7 +78,7 @@ const editProfile = (body) =>
  * @param {{name: string, link: string}} body,
  * @returns {Promise<CardInfo>}
  */
-const addCard = (body) =>
+export const addCard = (body) =>
   sendRequest({
     method: "POST",
     path: [API_COHORT_ID, "cards"],
@@ -90,7 +90,7 @@ const addCard = (body) =>
  * @param {{cardId: string}} body
  * @returns {Promise<{message: string}>}
  */
-const deleteCard = (body) =>
+export const deleteCard = (body) =>
   sendRequest({
     method: "DELETE",
     path: [API_COHORT_ID, "cards", body.cardId],
@@ -101,7 +101,7 @@ const deleteCard = (body) =>
  * @param {{cardId: string}} body
  * @returns {Promise<CardInfo>}
  */
-const likeCard = (body) =>
+export const likeCard = (body) =>
   sendRequest({
     method: "PUT",
     path: [API_COHORT_ID, "cards", "likes", body.cardId],
@@ -112,7 +112,7 @@ const likeCard = (body) =>
  * @param {{cardId: string}} body
  * @returns {Promise<CardInfo>}
  */
-const deleteCardLike = (body) =>
+export const deleteCardLike = (body) =>
   sendRequest({
     method: "DELETE",
     path: [API_COHORT_ID, "cards", "likes", body.cardId],
@@ -122,7 +122,7 @@ const deleteCardLike = (body) =>
  * @param {{avatar: string}} body
  * @returns {Promise<UserInfo>}
  */
-const updateAvatar = (body) =>
+export const updateAvatar = (body) =>
   sendRequest({
     method: "PATCH",
     path: [API_COHORT_ID, "users", "me", "avatar"],
