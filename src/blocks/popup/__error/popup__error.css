@@ -8,22 +8,15 @@
   font-style: normal;
   line-height: normal;
   inset-inline-start: 36px;
-  inset-block-start: 143px;
+  inset-block-start: 140px;
+}
+
+.popup__error:not(:first-of-type) {
+  margin-block-start: 57px;
 }
 
 @media (width <= 568px) {
   .popup__error {
-    inset-inline-start: 20px;
-    inset-block-start: 120px;
-  }
-}
-
-.popup__error:last-of-type {
-  inset-block-start: 200px;
-}
-
-@media (width <= 568px) {
-  .popup__error:last-of-type {
     inset-inline-start: 20px;
     inset-block-start: 120px;
   }

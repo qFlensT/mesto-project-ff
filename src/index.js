@@ -30,6 +30,15 @@ const modalImageImgElement = modalImageElement.querySelector(".popup__image");
 const modalImageCaptionElement =
   modalImageElement.querySelector(".popup__caption");
 
+const imageUpdateButtonElement = document.querySelector(
+  ".image__update-button"
+);
+const modalImageUpdateElement = document.querySelector(
+  ".popup_type_image-update"
+);
+
+const modalImageUpdateFormElement = document.forms["image-update"];
+
 const cardEventsHandlers = {
   /** @param {{link: string, name: string}} data */
   imageClickHandler: (data) => {
@@ -98,6 +107,18 @@ modalNewCardFormElement.addEventListener("submit", (event) => {
 
   modalNewCardFormElement.reset();
   closeModal(modalNewCardElement);
+});
+
+imageUpdateButtonElement.addEventListener("click", () => {
+  clearValidation(modalImageUpdateFormElement, validationConfig);
+  openModal(modalImageUpdateElement);
+});
+
+modalImageUpdateFormElement.addEventListener("submit", (event) => {
+  event.preventDefault();
+
+  modalImageUpdateFormElement.reset();
+  closeModal(modalImageUpdateElement);
 });
 
 modalElements.forEach((modalElement) => {
