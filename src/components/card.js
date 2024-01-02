@@ -49,8 +49,7 @@ const deleteCard = (cardElement) => {
 };
 
 /** @param {HTMLButtonElement} likeButtonElement */
-const likeCard = (likeButtonElement) => {
+const likeCard = (likeButtonElement) =>
   likeButtonElement.classList.toggle("card__like-button_is-active");
-};
 
 export { createCard, deleteCard, likeCard };

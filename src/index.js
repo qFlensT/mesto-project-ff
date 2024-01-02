@@ -1,6 +1,5 @@
-import { getInitialCards, getUserInfo } from "./components/api";
+import * as api from "./components/api";
 import { createCard, deleteCard, likeCard } from "./components/card";
-import cards from "./components/cards";
 import showErrorAlert from "./components/error-alert";
 import {
   animateModal,
@@ -10,7 +9,7 @@ import {
 } from "./components/modal";
 import { clearValidation, enableValidation } from "./components/validation";
 import "./pages/index.css";
-import * as Types from "./types.js";
+import * as Types from "./components/types";
 
 /** @type {Types.UserInfo} */
 /** @type {Types.CardInfo} */
@@ -61,14 +60,36 @@ const cardEventsHandlers = {
    * @param {CardInfo} cardInfo
    */
   deleteButtonClickHandler: (cardElement, cardInfo) => {
-    deleteCard(cardElement);
+    api
+      .removeCard({ cardId: cardInfo._id })
+      .then(() => deleteCard(cardElement))
+      .catch((errorCode) =>
+        showErrorAlert("Не удалось удалить карточку", errorCode)
+      );
   },
   /**
+   * @param {HTMLButtonElement} likeButtonElement
    * @param {HTMLButtonElement} likeButtonElement
    * @param {CardInfo} cardInfo
    */
   likeButtonClickHandler: (likeButtonElement, cardInfo) => {
-    likeCard(likeButtonElement);
+    likeCard(likeButtonElement)
+      ? api.likeCard({ cardId: cardInfo._id }).catch((errorCode) => {
+          showErrorAlert(
+            `Не удалось лайкнуть карточку "${cardInfo.name}"`,
+            errorCode
+          );
+          // Removing like
+          likeCard(likeButtonElement);
+        })
+      : api.removeCardLike({ cardId: cardInfo._id }).catch((errorCode) => {
+          showErrorAlert(
+            `Не удалось убрать лайк с карточки "${cardInfo.name}"`,
+            errorCode
+          );
+          // Setting like back
+          likeCard(likeButtonElement);
+        });
   },
 };
 
@@ -81,7 +102,8 @@ const validationConfig = {
   errorClass: "popup__error_visible",
 };
 
-getUserInfo()
+api
+  .getUserInfo()
   .then((body) => {
     profileTitleElement.textContent = body.name;
     profileDescriptionElement.textContent = body.about;
@@ -93,7 +115,8 @@ getUserInfo()
     showErrorAlert("Ошибка при получении информации о пользователе", errorCode);
   });
 
-getInitialCards()
+api
+  .getInitialCards()
   .then((cards) =>
     cards.forEach((card) =>
       placesListElement.append(createCard(card, cardEventsHandlers))

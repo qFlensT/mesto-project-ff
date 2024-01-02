@@ -28,6 +28,8 @@ const sendRequest = ({ method, path, body }) => {
     options.headers["Content-Type"] = "application/json";
   }
 
+  console.log("sending");
+
   return fetch(API_BASE_URL + path.join("/"), options).then((res) =>
     res.ok ? res.json() : Promise.reject(res.status)
   );
@@ -90,7 +92,7 @@ export const removeCard = (body) =>
 export const likeCard = (body) =>
   sendRequest({
     method: "PUT",
-    path: [API_COHORT_ID, "cards", "likes", body.cardId],
+    path: [API_COHORT_ID, "cards", "likes;", body.cardId],
   });
 
 /**
