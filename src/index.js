@@ -1,4 +1,4 @@
-import { getUserInfo } from "./components/api";
+import { getInitialCards, getUserInfo } from "./components/api";
 import { createCard, deleteCard, likeCard } from "./components/card";
 import cards from "./components/cards";
 import showErrorAlert from "./components/error-alert";
@@ -10,6 +10,10 @@ import {
 } from "./components/modal";
 import { clearValidation, enableValidation } from "./components/validation";
 import "./pages/index.css";
+import * as Types from "./types.js";
+
+/** @type {Types.UserInfo} */
+/** @type {Types.CardInfo} */
 
 const placesListElement = document.querySelector(".places__list");
 
@@ -44,7 +48,7 @@ const modalImageUpdateElement = document.querySelector(
 const modalImageUpdateFormElement = document.forms["image-update"];
 
 const cardEventsHandlers = {
-  /** @param {{link: string, name: string}} data */
+  /** @param {CardInfo} cardInfo */
   imageClickHandler: (data) => {
     modalImageImgElement.src = data.link;
     modalImageImgElement.alt = data.name;
@@ -52,12 +56,18 @@ const cardEventsHandlers = {
 
     openModal(modalImageElement);
   },
-  /** @param {HTMLDivElement} cardElement */
-  deleteButtonClickHandler: (cardElement) => {
+  /**
+   * @param {HTMLDivElement} cardElement
+   * @param {CardInfo} cardInfo
+   */
+  deleteButtonClickHandler: (cardElement, cardInfo) => {
     deleteCard(cardElement);
   },
-  /** @param {HTMLButtonElement} likeButtonElement */
-  likeButtonClickHandler: (likeButtonElement) => {
+  /**
+   * @param {HTMLButtonElement} likeButtonElement
+   * @param {CardInfo} cardInfo
+   */
+  likeButtonClickHandler: (likeButtonElement, cardInfo) => {
     likeCard(likeButtonElement);
   },
 };
@@ -83,9 +93,15 @@ getUserInfo()
     showErrorAlert("Ошибка при получении информации о пользователе", errorCode);
   });
 
-cards.forEach((card) => {
-  placesListElement.append(createCard(card, cardEventsHandlers));
-});
+getInitialCards()
+  .then((cards) =>
+    cards.forEach((card) =>
+      placesListElement.append(createCard(card, cardEventsHandlers))
+    )
+  )
+  .catch((errorCode) => {
+    showErrorAlert("Не удалось получить список карточек", errorCode);
+  });
 
 editButtonElement.addEventListener("click", () => {
   clearValidation(modalEditFormElement, validationConfig);

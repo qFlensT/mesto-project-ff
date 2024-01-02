@@ -1,4 +1,14 @@
 /**
+ * @typedef {Object} ValidationConfig
+ * @property {string} formSelector
+ * @property {string} inputSelector
+ * @property {string} submitButtonSelector
+ * @property {string} inactiveButtonClass
+ * @property {string} inputErrorClass
+ * @property {string} errorClass
+ */
+
+/**
  * @param {HTMLElement} element
  * @param {string} className
  * @param {boolean} condition
@@ -108,14 +118,7 @@ const updateButtonActiveState = (buttonElement, inputElements, inactiveClass) =>
 
 /**
  * @param {HTMLFormElement} formElement
- * @param {{
- *  formSelector: string,
- *  inputSelector: string,
- *  submitButtonSelector: string,
- *  inactiveButtonClass: string,
- *  inputErrorClass: string,
- *  errorClass: string
- * }} validationConfig
+ * @param {ValidationConfig} validationConfig
  */
 const setFormEventListeners = (formElement, validationConfig) => {
   const inputElements = Array.from(
@@ -143,14 +146,7 @@ const setFormEventListeners = (formElement, validationConfig) => {
 };
 
 /**
- * @param {{
- *  formSelector: string,
- *  inputSelector: string,
- *  submitButtonSelector: string,
- *  inactiveButtonClass: string,
- *  inputErrorClass: string,
- *  errorClass: string
- * }} validationConfig
+ * @param {ValidationConfig} validationConfig
  */
 const enableValidation = (validationConfig) => {
   const forms = Array.from(
@@ -162,14 +158,7 @@ const enableValidation = (validationConfig) => {
 /**
  *
  * @param {HTMLFormElement} formElement
- * @param {{
- *  formSelector: string,
- *  inputSelector: string,
- *  submitButtonSelector: string,
- *  inactiveButtonClass: string,
- *  inputErrorClass: string,
- *  errorClass: string
- * }} validationConfig
+ * @param {ValidationConfig} validationConfig
  */
 const clearValidation = (formElement, validationConfig) => {
   const inputElements = Array.from(

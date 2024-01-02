@@ -1,16 +1,21 @@
+import * as Types from "./types.js";
+
+/** @type {Types.UserInfo} */
+/** @type {Types.CardInfo} */
+
 // To use this component HTML must have `card` template
 const cardTemplateElement = document.querySelector("#card-template").content;
 
 /**
- * @param {{link: string, name: string}} cardData
+ * @param {CardInfo} cardInfo
  * @param {{
- *  imageClickHandler: function({link: string, name: string}),
- *  deleteButtonClickHandler: function(HTMLDivElement),
- *  likeButtonClickHandler: function(HTMLButtonElement)
+ *  imageClickHandler: function(CardInfo),
+ *  deleteButtonClickHandler: function(HTMLDivElement, CardInfo),
+ *  likeButtonClickHandler: function(HTMLButtonElement, CardInfo)
  * }} cardEventsHandlers
  * @returns {HTMLDivElement}
  */
-const createCard = (cardData, cardEventsHandlers) => {
+const createCard = (cardInfo, cardEventsHandlers) => {
   const cardElement = cardTemplateElement
     .querySelector(".card")
     .cloneNode(true);
@@ -19,24 +24,21 @@ const createCard = (cardData, cardEventsHandlers) => {
   const deleteButtonElement = cardElement.querySelector(".card__delete-button");
   const likeButtonElement = cardElement.querySelector(".card__like-button");
 
-  cardImageElement.src = cardData.link;
-  cardImageElement.alt = cardData.name;
+  cardImageElement.src = cardInfo.link;
+  cardImageElement.alt = cardInfo.name;
   cardImageElement.addEventListener("click", () => {
     //giving only necessary fields
-    cardEventsHandlers.imageClickHandler({
-      link: cardData.link,
-      name: cardData.name,
-    });
+    cardEventsHandlers.imageClickHandler(cardInfo);
   });
 
   deleteButtonElement.addEventListener("click", () =>
-    cardEventsHandlers.deleteButtonClickHandler(cardElement)
+    cardEventsHandlers.deleteButtonClickHandler(cardElement, cardInfo)
   );
   likeButtonElement.addEventListener("click", () =>
-    cardEventsHandlers.likeButtonClickHandler(likeButtonElement)
+    cardEventsHandlers.likeButtonClickHandler(likeButtonElement, cardInfo)
   );
 
-  cardElement.querySelector(".card__title").textContent = cardData.name;
+  cardElement.querySelector(".card__title").textContent = cardInfo.name;
 
   return cardElement;
 };
