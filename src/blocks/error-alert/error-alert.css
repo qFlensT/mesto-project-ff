@@ -1,7 +1,7 @@
 @import url("./__error-code/error-alert__error-code.css");
 
 .error-alert {
-  position: absolute;
+  position: fixed;
   inset: -50px 0 0 0;
   display: flex;
   align-items: center;
