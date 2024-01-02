@@ -1,6 +1,7 @@
 import { getUserInfo } from "./components/api";
 import { createCard, deleteCard, likeCard } from "./components/card";
 import cards from "./components/cards";
+import showErrorAlert from "./components/error-alert";
 import {
   animateModal,
   closeModal,
@@ -76,10 +77,10 @@ getUserInfo()
     profileDescriptionElement.textContent = body.about;
     profileImageElement.style.backgroundImage = `url(${body.avatar})`;
   })
-  .catch((err) => {
+  .catch((errorCode) => {
     profileTitleElement.textContent = "Ошибка загрузки";
     profileDescriptionElement.textContent = "Ошибка загрузки";
-    console.log(err);
+    showErrorAlert("Ошибка при получении информации о пользователе", errorCode);
   });
 
 cards.forEach((card) => {

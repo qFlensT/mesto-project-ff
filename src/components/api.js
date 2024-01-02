@@ -43,7 +43,7 @@ const sendRequest = ({ method, path, body }) => {
   }
 
   return fetch(API_BASE_URL + path.join("/"), options).then((res) =>
-    res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`)
+    res.ok ? res.json() : Promise.reject(res.status)
   );
 };
 

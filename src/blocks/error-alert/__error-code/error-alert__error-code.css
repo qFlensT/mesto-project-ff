@@ -1,0 +1,6 @@
+.error-alert__error-code {
+  background-color: #971133;
+  padding: 2px 5px;
+  block-size: auto;
+  border-radius: 0.2rem;
+}

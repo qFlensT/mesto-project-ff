@@ -1,0 +1,18 @@
+@import url("./__error-code/error-alert__error-code.css");
+
+.error-alert {
+  position: absolute;
+  inset: -50px 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto;
+  border-radius: 0.2rem;
+  padding: 5px;
+  color: #fff;
+  font: 12px "Inter", Arial, sans-serif;
+  background: #e41749;
+  transition: translate 0.3s;
+  inline-size: 300px;
+  block-size: min-content;
+}
