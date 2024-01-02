@@ -76,7 +76,7 @@ export const addCard = (body) =>
  * @param {{cardId: string}} body
  * @returns {Promise<{message: string}>}
  */
-export const deleteCard = (body) =>
+export const removeCard = (body) =>
   sendRequest({
     method: "DELETE",
     path: [API_COHORT_ID, "cards", body.cardId],
@@ -98,7 +98,7 @@ export const likeCard = (body) =>
  * @param {{cardId: string}} body
  * @returns {Promise<CardInfo>}
  */
-export const deleteCardLike = (body) =>
+export const removeCardLike = (body) =>
   sendRequest({
     method: "DELETE",
     path: [API_COHORT_ID, "cards", "likes", body.cardId],
