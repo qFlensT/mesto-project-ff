@@ -1,0 +1,17 @@
+.image__update-button {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  opacity: 0;
+  background: rgba(0, 0, 0, 0.8);
+  transition: opacity 0.3s;
+  cursor: pointer;
+  appearance: none;
+}
+
+.image__update-button:hover {
+  opacity: 1;
+}

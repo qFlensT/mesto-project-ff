@@ -1,4 +1,7 @@
+@import url("./__update-button/image__update-button.css");
+
 .profile__image {
+  position: relative;
   width: 120px;
   height: 120px;
   -webkit-border-radius: 50%;
