@@ -92,7 +92,7 @@ export const removeCard = (body) =>
 export const likeCard = (body) =>
   sendRequest({
     method: "PUT",
-    path: [API_COHORT_ID, "cards", "likes;", body.cardId],
+    path: [API_COHORT_ID, "cards", "likes", body.cardId],
   });
 
 /**
