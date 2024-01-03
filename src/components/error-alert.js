@@ -14,8 +14,15 @@ const toggleErrorAlertActiveState = (errorAlertElement, activeState) =>
     : errorAlertElement.classList.remove("error-alert_active");
 
 /**
+ * @param {any} errorCode
+ * @returns {boolean}
+ */
+const isErrorCodeValid = (errorCode) =>
+  typeof errorCode === "number" && !isNaN(errorCode);
+
+/**
  * @param {string} text
- * @param {string|number|null} errorCode
+ * @param {number} errorCode
  * @returns {HTMLDivElement}
  */
 const createErrorAlert = (text, errorCode = null) => {
@@ -27,7 +34,7 @@ const createErrorAlert = (text, errorCode = null) => {
     ".error-alert__error-code"
   );
 
-  errorCode
+  isErrorCodeValid(errorCode)
     ? (errorCodeElement.textContent = errorCode)
     : errorCodeElement.remove();
 
@@ -40,33 +47,36 @@ const createErrorAlert = (text, errorCode = null) => {
   return errorAlertElement;
 };
 
-/**
- * @param {HTMLDivElement} errorAlertElement
- */
+/** @param {HTMLDivElement} errorAlertElement */
 const removeErrorAlert = (errorAlertElement) => errorAlertElement.remove();
 
+/** @param {TransitionEvent} event */
+const handleTransitionEnd = (event) => {
+  event.currentTarget.removeEventListener("transitionend", handleTransitionEnd);
+  removeErrorAlert(event.currentTarget);
+};
 /**
  * @param {string} text
  * @param {string|number|null} errorCode
+ * @param {number} displayTime
  */
-const showErrorAlert = (text, errorCode = null) => {
+const showErrorAlert = (text, errorCode = null, displayTime = 3500) => {
   const errorAlertElement = createErrorAlert(text, errorCode);
   page.append(errorAlertElement);
 
-  setTimeout(
-    () =>
-      requestAnimationFrame(() =>
-        toggleErrorAlertActiveState(errorAlertElement, true)
-      ),
-    1
+  // reflow trigger
+  errorAlertElement.offsetWidth;
+
+  requestAnimationFrame(() =>
+    toggleErrorAlertActiveState(errorAlertElement, true)
   );
 
   setTimeout(() => {
-    toggleErrorAlertActiveState(errorAlertElement, false);
-    errorAlertElement.addEventListener("animationend", () =>
-      removeErrorAlert(errorAlertElement)
+    requestAnimationFrame(() =>
+      toggleErrorAlertActiveState(errorAlertElement, false)
     );
-  }, 5000);
+    errorAlertElement.addEventListener("transitionend", handleTransitionEnd);
+  }, displayTime);
 };
 
 export default showErrorAlert;
