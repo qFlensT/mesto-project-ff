@@ -1,5 +1,10 @@
 import * as api from "./components/api";
-import { createCard, deleteCard, likeCard } from "./components/card";
+import {
+  createCard,
+  deleteCard,
+  likeCard,
+  setLikesAmount,
+} from "./components/card";
 import showErrorAlert from "./components/error-alert";
 import {
   animateModal,
@@ -68,28 +73,39 @@ const cardEventsHandlers = {
       );
   },
   /**
-   * @param {HTMLButtonElement} likeButtonElement
-   * @param {HTMLButtonElement} likeButtonElement
+   * @param {HTMLDivElement} cardElement
    * @param {CardInfo} cardInfo
    */
-  likeButtonClickHandler: (likeButtonElement, cardInfo) => {
-    likeCard(likeButtonElement)
-      ? api.likeCard({ cardId: cardInfo._id }).catch((errorCode) => {
-          showErrorAlert(
-            `Не удалось лайкнуть карточку "${cardInfo.name}"`,
-            errorCode
-          );
-          // Removing like
-          likeCard(likeButtonElement);
-        })
-      : api.removeCardLike({ cardId: cardInfo._id }).catch((errorCode) => {
-          showErrorAlert(
-            `Не удалось убрать лайк с карточки "${cardInfo.name}"`,
-            errorCode
-          );
-          // Setting like back
-          likeCard(likeButtonElement);
-        });
+  likeButtonClickHandler: (cardElement, cardInfo) => {
+    likeCard(cardElement)
+      ? api
+          .likeCard({ cardId: cardInfo._id })
+          .then((cardInfo) =>
+            setLikesAmount(cardElement, cardInfo.likes.length)
+          )
+          .catch((errorCode) => {
+            showErrorAlert(
+              `Не удалось лайкнуть карточку "${cardInfo.name}"`,
+              errorCode
+            );
+            // Removing like
+            likeCard(cardElement);
+            setLikesAmount(cardElement, cardInfo.likes.length);
+          })
+      : api
+          .removeCardLike({ cardId: cardInfo._id })
+          .then((cardInfo) =>
+            setLikesAmount(cardElement, cardInfo.likes.length)
+          )
+          .catch((errorCode) => {
+            showErrorAlert(
+              `Не удалось убрать лайк с карточки "${cardInfo.name}"`,
+              errorCode
+            );
+            // Setting like back
+            likeCard(cardElement);
+            setLikesAmount(cardElement, cardInfo.likes.length);
+          });
   },
 };
 
@@ -102,28 +118,42 @@ const validationConfig = {
   errorClass: "popup__error_visible",
 };
 
-api
-  .getUserInfo()
-  .then((body) => {
-    profileTitleElement.textContent = body.name;
-    profileDescriptionElement.textContent = body.about;
-    profileImageElement.style.backgroundImage = `url(${body.avatar})`;
-  })
-  .catch((errorCode) => {
-    profileTitleElement.textContent = "Ошибка загрузки";
-    profileDescriptionElement.textContent = "Ошибка загрузки";
-    showErrorAlert("Ошибка при получении информации о пользователе", errorCode);
-  });
+const isObjectInArray = (obj, arr) =>
+  arr.some(
+    (item) =>
+      Object.keys(obj).length === Object.keys(item).length &&
+      Object.keys(obj).every((key) => obj[key] === item[key])
+  );
 
 api
-  .getInitialCards()
-  .then((cards) =>
-    cards.forEach((card) =>
-      placesListElement.append(createCard(card, cardEventsHandlers))
-    )
-  )
+  .getUserInfo()
+  .then((userInfo) => {
+    profileTitleElement.textContent = userInfo.name;
+    profileDescriptionElement.textContent = userInfo.about;
+    profileImageElement.style.backgroundImage = `url(${userInfo.avatar})`;
+
+    console.log(userInfo);
+
+    api.getInitialCards().then((cards) =>
+      cards.forEach((card) =>
+        placesListElement.append(
+          createCard(
+            card,
+            {
+              isDeletable:
+                JSON.stringify(card.owner) === JSON.stringify(userInfo),
+              isLiked: isObjectInArray(userInfo, card.likes),
+            },
+            cardEventsHandlers
+          )
+        )
+      )
+    );
+  })
   .catch((errorCode) => {
-    showErrorAlert("Не удалось получить список карточек", errorCode);
+    profileTitleElement.textContent = "Имя";
+    profileDescriptionElement.textContent = "Описание";
+    showErrorAlert("Ошибка при получении информации о пользователе", errorCode);
   });
 
 editButtonElement.addEventListener("click", () => {
