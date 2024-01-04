@@ -53,6 +53,15 @@ const modalImageUpdateElement = document.querySelector(
 
 const modalImageUpdateFormElement = document.forms["image-update"];
 
+const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible",
+};
+
 const cardEventsHandlers = {
   /** @param {CardInfo} cardInfo */
   imageClickHandler: (data) => {
@@ -107,15 +116,6 @@ const cardEventsHandlers = {
         });
     }
   },
-};
-
-const validationConfig = {
-  formSelector: ".popup__form",
-  inputSelector: ".popup__input",
-  submitButtonSelector: ".popup__button",
-  inactiveButtonClass: "popup__button_disabled",
-  inputErrorClass: "popup__input_type_error",
-  errorClass: "popup__error_visible",
 };
 
 /** @param {UserInfo|undefined|null} userInfo */
