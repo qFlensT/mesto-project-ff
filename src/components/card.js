@@ -24,11 +24,14 @@ const cardTemplateElement = document.querySelector("#card-template").content;
 const deleteCard = (cardElement) =>
   cardElement.querySelector(".card__delete-button") && cardElement.remove();
 
-/** @param {HTMLButtonElement} likeButtonElement */
-const likeCard = (cardElement) =>
+/**
+ * @param {HTMLButtonElement} cardElement
+ * @param {boolean} [force=undefined]
+ */
+const likeCard = (cardElement, force) =>
   cardElement
     .querySelector(".card__like-button")
-    .classList.toggle("card__like-button_is-active");
+    .classList.toggle("card__like-button_is-active", force);
 
 const setLikesAmount = (cardElement, likesAmount) =>
   (cardElement.querySelector(".card__likes-amount").textContent = likesAmount);
@@ -51,7 +54,7 @@ const createCard = (cardInfo, cardOptions, cardEventsHandlers) => {
   const deleteButtonElement = cardElement.querySelector(".card__delete-button");
   const likeButtonElement = cardElement.querySelector(".card__like-button");
 
-  cardOptions.isLiked && likeCard(cardElement);
+  cardOptions.isLiked && likeCard(cardElement, true);
 
   cardImageElement.src = cardInfo.link;
   cardImageElement.alt = cardInfo.name;

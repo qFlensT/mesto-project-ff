@@ -4,6 +4,7 @@ import {
   deleteCard,
   likeCard,
   setLikesAmount,
+  CardOptions,
 } from "./components/card";
 import showErrorAlert from "./components/error-alert";
 import {
@@ -15,6 +16,7 @@ import {
 import { clearValidation, enableValidation } from "./components/validation";
 import "./pages/index.css";
 import * as Types from "./components/types";
+import { isObjectInArray, isObjectsEqual } from "./components/utils";
 
 /** @type {Types.UserInfo} */
 /** @type {Types.CardInfo} */
@@ -77,35 +79,33 @@ const cardEventsHandlers = {
    * @param {CardInfo} cardInfo
    */
   likeButtonClickHandler: (cardElement, cardInfo) => {
-    likeCard(cardElement)
-      ? api
-          .likeCard({ cardId: cardInfo._id })
-          .then((cardInfo) =>
-            setLikesAmount(cardElement, cardInfo.likes.length)
-          )
-          .catch((errorCode) => {
-            showErrorAlert(
-              `Не удалось лайкнуть карточку "${cardInfo.name}"`,
-              errorCode
-            );
-            // Removing like
-            likeCard(cardElement);
-            setLikesAmount(cardElement, cardInfo.likes.length);
-          })
-      : api
-          .removeCardLike({ cardId: cardInfo._id })
-          .then((cardInfo) =>
-            setLikesAmount(cardElement, cardInfo.likes.length)
-          )
-          .catch((errorCode) => {
-            showErrorAlert(
-              `Не удалось убрать лайк с карточки "${cardInfo.name}"`,
-              errorCode
-            );
-            // Setting like back
-            likeCard(cardElement);
-            setLikesAmount(cardElement, cardInfo.likes.length);
-          });
+    if (likeCard(cardElement)) {
+      api
+        .likeCard({ cardId: cardInfo._id })
+        .then((cardInfo) => setLikesAmount(cardElement, cardInfo.likes.length))
+        .catch((errorCode) => {
+          showErrorAlert(
+            `Не удалось лайкнуть карточку "${cardInfo.name}"`,
+            errorCode
+          );
+          // Removing like
+          likeCard(cardElement);
+          setLikesAmount(cardElement, cardInfo.likes.length);
+        });
+    } else {
+      api
+        .removeCardLike({ cardId: cardInfo._id })
+        .then((cardInfo) => setLikesAmount(cardElement, cardInfo.likes.length))
+        .catch((errorCode) => {
+          showErrorAlert(
+            `Не удалось убрать лайк с карточки "${cardInfo.name}"`,
+            errorCode
+          );
+          // Setting like back
+          likeCard(cardElement);
+          setLikesAmount(cardElement, cardInfo.likes.length);
+        });
+    }
   },
 };
 
@@ -118,43 +118,84 @@ const validationConfig = {
   errorClass: "popup__error_visible",
 };
 
-const isObjectInArray = (obj, arr) =>
-  arr.some(
-    (item) =>
-      Object.keys(obj).length === Object.keys(item).length &&
-      Object.keys(obj).every((key) => obj[key] === item[key])
-  );
-
-api
-  .getUserInfo()
-  .then((userInfo) => {
+/** @param {UserInfo|undefined|null} userInfo */
+const setProfileInfo = (userInfo) => {
+  if (userInfo) {
     profileTitleElement.textContent = userInfo.name;
     profileDescriptionElement.textContent = userInfo.about;
     profileImageElement.style.backgroundImage = `url(${userInfo.avatar})`;
-
-    console.log(userInfo);
-
-    api.getInitialCards().then((cards) =>
-      cards.forEach((card) =>
-        placesListElement.append(
-          createCard(
-            card,
-            {
-              isDeletable:
-                JSON.stringify(card.owner) === JSON.stringify(userInfo),
-              isLiked: isObjectInArray(userInfo, card.likes),
-            },
-            cardEventsHandlers
-          )
-        )
-      )
-    );
-  })
-  .catch((errorCode) => {
+  } else {
     profileTitleElement.textContent = "Имя";
     profileDescriptionElement.textContent = "Описание";
-    showErrorAlert("Ошибка при получении информации о пользователе", errorCode);
-  });
+  }
+};
+
+/**
+ * @param {CardInfo} cardInfo
+ * @param {CardOptions} options
+ * @param {"start"|"end"} placement
+ */
+const addCard = (cardInfo, options, placement = "end") => {
+  switch (placement) {
+    case "end":
+      placesListElement.append(
+        createCard(cardInfo, options, cardEventsHandlers)
+      );
+      break;
+    case "start":
+      placesListElement.prepend(
+        createCard(cardInfo, options, cardEventsHandlers)
+      );
+      break;
+  }
+};
+
+/**
+ * @param {CardInfo} cardInfo
+ * @param {UserInfo|undefined|null} userInfo
+ * @returns {CardOptions}
+ */
+const getCardOptions = (cardInfo, userInfo) =>
+  userInfo
+    ? {
+        isDeletable: isObjectsEqual(userInfo._id, cardInfo.owner),
+        isLiked: isObjectInArray(userInfo, cardInfo.likes),
+      }
+    : {
+        isDeletable: false,
+        isLiked: false,
+      };
+
+const loadInitialData = () => {
+  /** @type {UserInfo} */
+  let userInfo;
+
+  api
+    .getUserInfo()
+    .then((user) => {
+      setProfileInfo(user);
+      userInfo = user;
+    })
+    .catch((errorCode) => {
+      setProfileInfo(null);
+      showErrorAlert(
+        "Ошибка при получении информации о пользователе",
+        errorCode
+      );
+    })
+    .finally(() => {
+      api
+        .getInitialCards()
+        .then((cardsInfo) => {
+          cardsInfo.forEach((cardInfo) =>
+            addCard(cardInfo, getCardOptions(cardInfo, userInfo))
+          );
+        })
+        .catch((errorCode) =>
+          showErrorAlert("Не удалось загрузить карточки", errorCode)
+        );
+    });
+};
 
 editButtonElement.addEventListener("click", () => {
   clearValidation(modalEditFormElement, validationConfig);
@@ -213,3 +254,4 @@ modalElements.forEach((modalElement) => {
 });
 
 enableValidation(validationConfig);
+loadInitialData();
