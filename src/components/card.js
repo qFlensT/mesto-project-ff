@@ -1,8 +1,5 @@
 import * as Types from "./types.js";
 
-// TODO delete
-/** @type {Types.UserInfo} */
-
 /** @type {Types.CardInfo} */
 
 /**
@@ -43,9 +40,6 @@ const setLikesAmount = (cardElement, likesAmount) =>
  * @returns {HTMLDivElement}
  */
 const createCard = (cardInfo, cardOptions, cardEventsHandlers) => {
-  console.log(cardInfo);
-  console.log(cardOptions);
-
   const cardElement = cardTemplateElement
     .querySelector(".card")
     .cloneNode(true);

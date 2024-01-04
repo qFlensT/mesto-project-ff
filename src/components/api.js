@@ -28,8 +28,6 @@ const sendRequest = ({ method, path, body }) => {
     options.headers["Content-Type"] = "application/json";
   }
 
-  console.log("sending");
-
   return fetch(API_BASE_URL + path.join("/"), options).then((res) =>
     res.ok ? res.json() : Promise.reject(res.status)
   );

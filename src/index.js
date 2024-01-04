@@ -44,6 +44,9 @@ const modalImageImgElement = modalImageElement.querySelector(".popup__image");
 const modalImageCaptionElement =
   modalImageElement.querySelector(".popup__caption");
 
+const modalConfirmElement = document.querySelector(".popup_type_confirm");
+const modalConfirmFormElement = document.forms["confirm"];
+
 const imageUpdateButtonElement = document.querySelector(
   ".image__update-button"
 );
@@ -62,6 +65,30 @@ const validationConfig = {
   errorClass: "popup__error_visible",
 };
 
+/**
+ * @param {HTMLFormElement} form
+ * @param {"loading"|"error"|"ready"} state
+ * @param {string} [customText=undefined]
+ */
+const changeSubmitButtonState = (form, state, customText) => {
+  const submitButtonElement = form["submit-button"];
+
+  switch (state) {
+    case "loading":
+      submitButtonElement.textContent = customText || "Сохранение...";
+      submitButtonElement.disabled = true;
+      break;
+    case "error":
+      submitButtonElement.textContent = customText || "Не удалось сохранить";
+      submitButtonElement.disabled = false;
+      break;
+    case "ready":
+      submitButtonElement.textContent = customText || "Сохранить";
+      submitButtonElement.disabled = false;
+      break;
+  }
+};
+
 const cardEventsHandlers = {
   /** @param {CardInfo} cardInfo */
   imageClickHandler: (data) => {
@@ -76,12 +103,38 @@ const cardEventsHandlers = {
    * @param {CardInfo} cardInfo
    */
   deleteButtonClickHandler: (cardElement, cardInfo) => {
-    api
-      .removeCard({ cardId: cardInfo._id })
-      .then(() => deleteCard(cardElement))
-      .catch((errorCode) =>
-        showErrorAlert("Не удалось удалить карточку", errorCode)
+    openModal(modalConfirmElement);
+
+    modalConfirmFormElement.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      changeSubmitButtonState(
+        modalConfirmFormElement,
+        "loading",
+        "Удаление..."
       );
+
+      api
+        .removeCard({ cardId: cardInfo._id })
+        .then(() => {
+          changeSubmitButtonState(modalConfirmFormElement, "ready", "Да");
+          deleteCard(cardElement);
+          closeModal(modalConfirmElement);
+        })
+        .catch((errorCode) => {
+          changeSubmitButtonState(
+            modalConfirmFormElement,
+            "error",
+            "Не удалось удалить карточку"
+          );
+          setTimeout(
+            () =>
+              changeSubmitButtonState(modalConfirmFormElement, "ready", "Да"),
+            2500
+          );
+          showErrorAlert("Не удалось удалить карточку", errorCode);
+        });
+    });
   },
   /**
    * @param {HTMLDivElement} cardElement
@@ -97,9 +150,7 @@ const cardEventsHandlers = {
             `Не удалось лайкнуть карточку "${cardInfo.name}"`,
             errorCode
           );
-          // Removing like
           likeCard(cardElement);
-          setLikesAmount(cardElement, cardInfo.likes.length);
         });
     } else {
       api
@@ -110,9 +161,7 @@ const cardEventsHandlers = {
             `Не удалось убрать лайк с карточки "${cardInfo.name}"`,
             errorCode
           );
-          // Setting like back
           likeCard(cardElement);
-          setLikesAmount(cardElement, cardInfo.likes.length);
         });
     }
   },
@@ -200,30 +249,6 @@ const loadInitialData = () => {
     });
 };
 
-/**
- * @param {HTMLFormElement} form
- * @param {"loading"|"error"|"ready"} state
- */
-const changeSubmitButtonState = (form, state) => {
-  const submitButtonElement = form["submit-button"];
-
-  switch (state) {
-    case "loading":
-      submitButtonElement.textContent = "Сохранение...";
-      submitButtonElement.disabled = true;
-      break;
-    case "error":
-      submitButtonElement.textContent = "Не удалось сохранить";
-      submitButtonElement.disabled = false;
-      setTimeout(() => changeSubmitButtonState(form, "ready"), 2000);
-      break;
-    case "ready":
-      submitButtonElement.textContent = "Сохранить";
-      submitButtonElement.disabled = false;
-      break;
-  }
-};
-
 editButtonElement.addEventListener("click", () => {
   clearValidation(modalEditFormElement, validationConfig);
 
@@ -253,6 +278,10 @@ modalEditFormElement.addEventListener("submit", (event) => {
     })
     .catch((errorCode) => {
       changeSubmitButtonState(modalEditFormElement, "error");
+      setTimeout(
+        () => changeSubmitButtonState(modalEditFormElement, "ready"),
+        2500
+      );
       showErrorAlert("Не удалось обновить информацию профиля", errorCode);
     });
 });
@@ -282,6 +311,10 @@ modalNewCardFormElement.addEventListener("submit", (event) => {
     })
     .catch((errorCode) => {
       changeSubmitButtonState(modalNewCardFormElement, "error");
+      setTimeout(
+        () => changeSubmitButtonState(modalNewCardFormElement, "ready"),
+        2500
+      );
       showErrorAlert(
         `Не удалось добавить карточку "${cardData.name}"`,
         errorCode
@@ -307,6 +340,10 @@ modalImageUpdateFormElement.addEventListener("submit", (event) => {
     })
     .catch((errorCode) => {
       changeSubmitButtonState(modalImageUpdateFormElement, "error");
+      setTimeout(
+        () => changeSubmitButtonState(modalImageUpdateFormElement, "ready"),
+        2500
+      );
       showErrorAlert("Не удалось обновить аватар", errorCode);
     });
 });
