@@ -155,16 +155,19 @@ const addCard = (cardInfo, options, placement = "end") => {
  * @param {UserInfo|undefined|null} userInfo
  * @returns {CardOptions}
  */
-const getCardOptions = (cardInfo, userInfo) =>
-  userInfo
-    ? {
-        isDeletable: isObjectsEqual(userInfo._id, cardInfo.owner),
-        isLiked: isObjectInArray(userInfo, cardInfo.likes),
-      }
-    : {
-        isDeletable: false,
-        isLiked: false,
-      };
+const getCardOptions = (cardInfo, userInfo) => {
+  if (userInfo) {
+    return {
+      isDeletable: isObjectsEqual(userInfo, cardInfo.owner),
+      isLiked: isObjectInArray(userInfo, cardInfo.likes),
+    };
+  }
+
+  return {
+    isDeletable: false,
+    isLiked: false,
+  };
+};
 
 const loadInitialData = () => {
   /** @type {UserInfo} */
@@ -197,6 +200,30 @@ const loadInitialData = () => {
     });
 };
 
+/**
+ * @param {HTMLFormElement} form
+ * @param {"loading"|"error"|"ready"} state
+ */
+const changeSubmitButtonState = (form, state) => {
+  const submitButtonElement = form["submit-button"];
+
+  switch (state) {
+    case "loading":
+      submitButtonElement.textContent = "Сохранение...";
+      submitButtonElement.disabled = true;
+      break;
+    case "error":
+      submitButtonElement.textContent = "Не удалось сохранить";
+      submitButtonElement.disabled = false;
+      setTimeout(() => changeSubmitButtonState(form, "ready"), 2000);
+      break;
+    case "ready":
+      submitButtonElement.textContent = "Сохранить";
+      submitButtonElement.disabled = false;
+      break;
+  }
+};
+
 editButtonElement.addEventListener("click", () => {
   clearValidation(modalEditFormElement, validationConfig);
 
@@ -210,11 +237,24 @@ editButtonElement.addEventListener("click", () => {
 modalEditFormElement.addEventListener("submit", (event) => {
   event.preventDefault();
 
-  profileTitleElement.textContent = modalEditFormElement.name.value;
-  profileDescriptionElement.textContent =
-    modalEditFormElement.description.value;
+  const profileData = {
+    name: modalEditFormElement.name.value,
+    about: modalEditFormElement.description.value,
+  };
 
-  closeModal(modalEditElement);
+  changeSubmitButtonState(modalEditFormElement, "loading");
+
+  api
+    .editProfile(profileData)
+    .then((userInfo) => {
+      changeSubmitButtonState(modalEditFormElement, "ready");
+      setProfileInfo(userInfo);
+      closeModal(modalEditElement);
+    })
+    .catch((errorCode) => {
+      changeSubmitButtonState(modalEditFormElement, "error");
+      showErrorAlert("Не удалось обновить информацию профиля", errorCode);
+    });
 });
 
 newCardButtonElement.addEventListener("click", () => {
@@ -224,15 +264,29 @@ newCardButtonElement.addEventListener("click", () => {
 
 modalNewCardFormElement.addEventListener("submit", (event) => {
   event.preventDefault();
+
   const cardData = {
     name: modalNewCardFormElement["place-name"].value,
     link: modalNewCardFormElement["link"].value,
   };
 
-  placesListElement.prepend(createCard(cardData, cardEventsHandlers));
+  changeSubmitButtonState(modalNewCardFormElement, "loading");
 
-  modalNewCardFormElement.reset();
-  closeModal(modalNewCardElement);
+  api
+    .addCard(cardData)
+    .then((cardInfo) => {
+      changeSubmitButtonState(modalNewCardFormElement, "ready");
+      addCard(cardInfo, getCardOptions(cardInfo, cardInfo.owner), "start");
+      modalNewCardFormElement.reset();
+      closeModal(modalNewCardElement);
+    })
+    .catch((errorCode) => {
+      changeSubmitButtonState(modalNewCardFormElement, "error");
+      showErrorAlert(
+        `Не удалось добавить карточку "${cardData.name}"`,
+        errorCode
+      );
+    });
 });
 
 imageUpdateButtonElement.addEventListener("click", () => {
@@ -242,9 +296,19 @@ imageUpdateButtonElement.addEventListener("click", () => {
 
 modalImageUpdateFormElement.addEventListener("submit", (event) => {
   event.preventDefault();
-
-  modalImageUpdateFormElement.reset();
-  closeModal(modalImageUpdateElement);
+  changeSubmitButtonState(modalImageUpdateFormElement, "loading");
+  api
+    .updateAvatar({ avatar: modalImageUpdateFormElement["link"].value })
+    .then((userInfo) => {
+      changeSubmitButtonState(modalImageUpdateFormElement, "ready");
+      setProfileInfo(userInfo);
+      modalImageUpdateFormElement.reset();
+      closeModal(modalImageUpdateElement);
+    })
+    .catch((errorCode) => {
+      changeSubmitButtonState(modalImageUpdateFormElement, "error");
+      showErrorAlert("Не удалось обновить аватар", errorCode);
+    });
 });
 
 modalElements.forEach((modalElement) => {

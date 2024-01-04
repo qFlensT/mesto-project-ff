@@ -61,6 +61,7 @@ const handleTransitionEnd = (event) => {
  * @param {number} displayTime
  */
 const showErrorAlert = (text, errorCode = null, displayTime = 3500) => {
+  console.log(errorCode);
   const errorAlertElement = createErrorAlert(text, errorCode);
   page.append(errorAlertElement);
 
