@@ -1,4 +1,4 @@
-import * as api from "./components/api";
+import * as api from "../components/api";
 import {
   createCard,
   deleteCard,
@@ -6,18 +6,18 @@ import {
   setLikesAmount,
   CardOptions,
   isCardLiked,
-} from "./components/card";
-import showErrorAlert from "./components/error-alert";
+} from "../components/card";
+import showErrorAlert from "../components/error-alert";
 import {
   animateModal,
   closeModal,
   openModal,
   modalCloseCallback,
-} from "./components/modal";
-import { clearValidation, enableValidation } from "./components/validation";
-import "./pages/index.css";
-import * as Types from "./components/types";
-import { isObjectInArray, isObjectsEqual } from "./components/utils";
+} from "../components/modal";
+import { clearValidation, enableValidation } from "../components/validation";
+import "./index.css";
+import * as Types from "../components/types";
+import { isObjectInArray, isObjectsEqual } from "../components/utils";
 
 /** @type {Types.UserInfo} */
 /** @type {Types.CardInfo} */
@@ -148,12 +148,16 @@ const cardEventsHandlers = {
   },
 };
 
+/** @param {string} url */
+const setAvatar = (url) => {
+  profileImageElement.style.backgroundImage = `url(${url})`;
+};
+
 /** @param {UserInfo|null} userInfo */
 const setProfileInfo = (userInfo) => {
   if (userInfo) {
     profileTitleElement.textContent = userInfo.name;
     profileDescriptionElement.textContent = userInfo.about;
-    profileImageElement.style.backgroundImage = `url(${userInfo.avatar})`;
   } else {
     profileTitleElement.textContent = "Имя";
     profileDescriptionElement.textContent = "Описание";
@@ -194,6 +198,7 @@ const loadInitialData = () =>
   Promise.all([api.getUserInfo(), api.getInitialCards()])
     .then(([userInfo, cardsInfo]) => {
       setProfileInfo(userInfo);
+      setAvatar(userInfo.avatar);
       cardsInfo.forEach((cardInfo) =>
         addCard(cardInfo, getCardOptions(cardInfo, userInfo))
       );
@@ -280,7 +285,7 @@ modalImageUpdateFormElement.addEventListener("submit", (event) => {
   api
     .updateAvatar({ avatar: modalImageUpdateFormElement["link"].value })
     .then((userInfo) => {
-      setProfileInfo(userInfo);
+      setAvatar(userInfo.avatar);
       modalImageUpdateFormElement.reset();
       closeModal(modalImageUpdateElement);
     })
