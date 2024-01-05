@@ -5,6 +5,7 @@ import {
   likeCard,
   setLikesAmount,
   CardOptions,
+  isCardLiked,
 } from "./components/card";
 import showErrorAlert from "./components/error-alert";
 import {
@@ -67,7 +68,7 @@ const validationConfig = {
 
 /**
  * @param {HTMLFormElement} form
- * @param {"loading"|"error"|"ready"} state
+ * @param {"loading"|"ready"} state
  * @param {string} [customText=undefined]
  */
 const changeSubmitButtonState = (form, state, customText) => {
@@ -78,10 +79,6 @@ const changeSubmitButtonState = (form, state, customText) => {
       submitButtonElement.textContent = customText || "Сохранение...";
       submitButtonElement.disabled = true;
       break;
-    case "error":
-      submitButtonElement.textContent = customText || "Не удалось сохранить";
-      submitButtonElement.disabled = false;
-      break;
     case "ready":
       submitButtonElement.textContent = customText || "Сохранить";
       submitButtonElement.disabled = false;
@@ -91,10 +88,10 @@ const changeSubmitButtonState = (form, state, customText) => {
 
 const cardEventsHandlers = {
   /** @param {CardInfo} cardInfo */
-  imageClickHandler: (data) => {
-    modalImageImgElement.src = data.link;
-    modalImageImgElement.alt = data.name;
-    modalImageCaptionElement.textContent = data.name;
+  imageClickHandler: (cardInfo) => {
+    modalImageImgElement.src = cardInfo.link;
+    modalImageImgElement.alt = cardInfo.name;
+    modalImageCaptionElement.textContent = cardInfo.name;
 
     openModal(modalImageElement);
   },
@@ -117,57 +114,41 @@ const cardEventsHandlers = {
       api
         .removeCard({ cardId: cardInfo._id })
         .then(() => {
-          changeSubmitButtonState(modalConfirmFormElement, "ready", "Да");
           deleteCard(cardElement);
           closeModal(modalConfirmElement);
         })
         .catch((errorCode) => {
-          changeSubmitButtonState(
-            modalConfirmFormElement,
-            "error",
-            "Не удалось удалить карточку"
-          );
-          setTimeout(
-            () =>
-              changeSubmitButtonState(modalConfirmFormElement, "ready", "Да"),
-            2500
-          );
           showErrorAlert("Не удалось удалить карточку", errorCode);
-        });
+        })
+        .finally(() =>
+          changeSubmitButtonState(modalConfirmFormElement, "ready", "Да")
+        );
     });
   },
+
   /**
    * @param {HTMLDivElement} cardElement
    * @param {CardInfo} cardInfo
    */
   likeButtonClickHandler: (cardElement, cardInfo) => {
-    if (likeCard(cardElement)) {
-      api
-        .likeCard({ cardId: cardInfo._id })
-        .then((cardInfo) => setLikesAmount(cardElement, cardInfo.likes.length))
-        .catch((errorCode) => {
-          showErrorAlert(
-            `Не удалось лайкнуть карточку "${cardInfo.name}"`,
-            errorCode
-          );
-          likeCard(cardElement);
-        });
-    } else {
-      api
-        .removeCardLike({ cardId: cardInfo._id })
-        .then((cardInfo) => setLikesAmount(cardElement, cardInfo.likes.length))
-        .catch((errorCode) => {
-          showErrorAlert(
-            `Не удалось убрать лайк с карточки "${cardInfo.name}"`,
-            errorCode
-          );
-          likeCard(cardElement);
-        });
-    }
+    const likeAction = () =>
+      isCardLiked(cardElement) ? api.removeCardLike : api.likeCard;
+
+    likeAction()({ cardId: cardInfo._id })
+      .then((cardInfo) => {
+        likeCard(cardElement);
+        setLikesAmount(cardElement, cardInfo.likes.length);
+      })
+      .catch((errorCode) => {
+        showErrorAlert(
+          `Не удалось убрать или снять лайк с карточки "${cardInfo.name}"`,
+          errorCode
+        );
+      });
   },
 };
 
-/** @param {UserInfo|undefined|null} userInfo */
+/** @param {UserInfo|null} userInfo */
 const setProfileInfo = (userInfo) => {
   if (userInfo) {
     profileTitleElement.textContent = userInfo.name;
@@ -201,53 +182,29 @@ const addCard = (cardInfo, options, placement = "end") => {
 
 /**
  * @param {CardInfo} cardInfo
- * @param {UserInfo|undefined|null} userInfo
+ * @param {UserInfo} userInfo
  * @returns {CardOptions}
  */
-const getCardOptions = (cardInfo, userInfo) => {
-  if (userInfo) {
-    return {
-      isDeletable: isObjectsEqual(userInfo, cardInfo.owner),
-      isLiked: isObjectInArray(userInfo, cardInfo.likes),
-    };
-  }
+const getCardOptions = (cardInfo, userInfo) => ({
+  isDeletable: isObjectsEqual(userInfo, cardInfo.owner),
+  isLiked: isObjectInArray(userInfo, cardInfo.likes),
+});
 
-  return {
-    isDeletable: false,
-    isLiked: false,
-  };
-};
-
-const loadInitialData = () => {
-  /** @type {UserInfo} */
-  let userInfo;
-
-  api
-    .getUserInfo()
-    .then((user) => {
-      setProfileInfo(user);
-      userInfo = user;
+const loadInitialData = () =>
+  Promise.all([api.getUserInfo(), api.getInitialCards()])
+    .then(([userInfo, cardsInfo]) => {
+      setProfileInfo(userInfo);
+      cardsInfo.forEach((cardInfo) =>
+        addCard(cardInfo, getCardOptions(cardInfo, userInfo))
+      );
     })
     .catch((errorCode) => {
       setProfileInfo(null);
       showErrorAlert(
-        "Ошибка при получении информации о пользователе",
+        "Ошибка при получении информации о пользователе или карточках",
         errorCode
       );
-    })
-    .finally(() => {
-      api
-        .getInitialCards()
-        .then((cardsInfo) => {
-          cardsInfo.forEach((cardInfo) =>
-            addCard(cardInfo, getCardOptions(cardInfo, userInfo))
-          );
-        })
-        .catch((errorCode) =>
-          showErrorAlert("Не удалось загрузить карточки", errorCode)
-        );
     });
-};
 
 editButtonElement.addEventListener("click", () => {
   clearValidation(modalEditFormElement, validationConfig);
@@ -272,18 +229,13 @@ modalEditFormElement.addEventListener("submit", (event) => {
   api
     .editProfile(profileData)
     .then((userInfo) => {
-      changeSubmitButtonState(modalEditFormElement, "ready");
       setProfileInfo(userInfo);
       closeModal(modalEditElement);
     })
     .catch((errorCode) => {
-      changeSubmitButtonState(modalEditFormElement, "error");
-      setTimeout(
-        () => changeSubmitButtonState(modalEditFormElement, "ready"),
-        2500
-      );
       showErrorAlert("Не удалось обновить информацию профиля", errorCode);
-    });
+    })
+    .finally(() => changeSubmitButtonState(modalEditFormElement, "ready"));
 });
 
 newCardButtonElement.addEventListener("click", () => {
@@ -304,22 +256,17 @@ modalNewCardFormElement.addEventListener("submit", (event) => {
   api
     .addCard(cardData)
     .then((cardInfo) => {
-      changeSubmitButtonState(modalNewCardFormElement, "ready");
       addCard(cardInfo, getCardOptions(cardInfo, cardInfo.owner), "start");
       modalNewCardFormElement.reset();
       closeModal(modalNewCardElement);
     })
     .catch((errorCode) => {
-      changeSubmitButtonState(modalNewCardFormElement, "error");
-      setTimeout(
-        () => changeSubmitButtonState(modalNewCardFormElement, "ready"),
-        2500
-      );
       showErrorAlert(
         `Не удалось добавить карточку "${cardData.name}"`,
         errorCode
       );
-    });
+    })
+    .finally(() => changeSubmitButtonState(modalNewCardFormElement, "ready"));
 });
 
 imageUpdateButtonElement.addEventListener("click", () => {
@@ -333,19 +280,16 @@ modalImageUpdateFormElement.addEventListener("submit", (event) => {
   api
     .updateAvatar({ avatar: modalImageUpdateFormElement["link"].value })
     .then((userInfo) => {
-      changeSubmitButtonState(modalImageUpdateFormElement, "ready");
       setProfileInfo(userInfo);
       modalImageUpdateFormElement.reset();
       closeModal(modalImageUpdateElement);
     })
     .catch((errorCode) => {
-      changeSubmitButtonState(modalImageUpdateFormElement, "error");
-      setTimeout(
-        () => changeSubmitButtonState(modalImageUpdateFormElement, "ready"),
-        2500
-      );
       showErrorAlert("Не удалось обновить аватар", errorCode);
-    });
+    })
+    .finally(() =>
+      changeSubmitButtonState(modalImageUpdateFormElement, "ready")
+    );
 });
 
 modalElements.forEach((modalElement) => {

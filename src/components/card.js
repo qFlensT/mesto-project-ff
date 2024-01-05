@@ -1,4 +1,5 @@
 import * as Types from "./types.js";
+import imageNoImage from "../images/card-no-image.png";
 
 /** @type {Types.CardInfo} */
 
@@ -30,6 +31,12 @@ const likeCard = (cardElement, force) =>
     .querySelector(".card__like-button")
     .classList.toggle("card__like-button_is-active", force);
 
+/** @param {HTMLDivElement} cardElement */
+const isCardLiked = (cardElement) =>
+  cardElement
+    .querySelector(".card__like-button")
+    .classList.contains("card__like-button_is-active");
+
 const setLikesAmount = (cardElement, likesAmount) =>
   (cardElement.querySelector(".card__likes-amount").textContent = likesAmount);
 
@@ -44,6 +51,7 @@ const createCard = (cardInfo, cardOptions, cardEventsHandlers) => {
     .querySelector(".card")
     .cloneNode(true);
 
+  /** @type {HTMLImageElement} */
   const cardImageElement = cardElement.querySelector(".card__image");
   const deleteButtonElement = cardElement.querySelector(".card__delete-button");
   const likeButtonElement = cardElement.querySelector(".card__like-button");
@@ -52,8 +60,18 @@ const createCard = (cardInfo, cardOptions, cardEventsHandlers) => {
 
   cardImageElement.src = cardInfo.link;
   cardImageElement.alt = cardInfo.name;
+
+  cardImageElement.onerror = () => {
+    cardImageElement.src = imageNoImage;
+    cardImageElement.alt = "Не удалось загрузить изображение";
+  };
+
   cardImageElement.addEventListener("click", () => {
-    cardEventsHandlers.imageClickHandler(cardInfo);
+    cardEventsHandlers.imageClickHandler({
+      ...cardInfo,
+      link: cardImageElement.src,
+      alt: cardImageElement.alt,
+    });
   });
 
   if (cardOptions.isDeletable) {
@@ -75,4 +93,4 @@ const createCard = (cardInfo, cardOptions, cardEventsHandlers) => {
   return cardElement;
 };
 
-export { createCard, deleteCard, setLikesAmount, likeCard };
+export { createCard, deleteCard, setLikesAmount, likeCard, isCardLiked };
