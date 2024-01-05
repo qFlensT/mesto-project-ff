@@ -105,6 +105,7 @@ export const removeCardLike = (body) =>
   });
 
 /**
+ * Обновляет аватар
  * @param {{avatar: string}} body
  * @returns {Promise<UserInfo>}
  */

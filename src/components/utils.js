@@ -4,7 +4,7 @@
  */
 const isObjectsEqual = (...objects) => {
   if (objects.length < 2) {
-    throw new Error("At least two objects are required to compare");
+    throw new Error("Для проверки должно быть передано как минимум 2 объекта");
   }
 
   const deepEqual = (obj1, obj2) => {
