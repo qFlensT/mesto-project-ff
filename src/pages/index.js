@@ -95,36 +95,53 @@ const cardEventsHandlers = {
 
     openModal(modalImageElement);
   },
-  /**
-   * @param {HTMLDivElement} cardElement
-   * @param {CardInfo} cardInfo
-   */
-  deleteButtonClickHandler: (cardElement, cardInfo) => {
-    openModal(modalConfirmElement);
 
-    modalConfirmFormElement.addEventListener("submit", (event) => {
-      event.preventDefault();
+  deleteButtonClickHandler: (() => {
+    let isListenerAdded = false;
 
-      changeSubmitButtonState(
-        modalConfirmFormElement,
-        "loading",
-        "Удаление..."
+    /**
+     * @param {HTMLDivElement} cardElement
+     * @param {CardInfo} cardInfo
+     */
+    return function (cardElement, cardInfo) {
+      openModal(modalConfirmElement);
+
+      if (isListenerAdded) {
+        return;
+      }
+
+      isListenerAdded = true;
+
+      modalConfirmFormElement.addEventListener(
+        "submit",
+        (event) => {
+          event.preventDefault();
+
+          changeSubmitButtonState(
+            modalConfirmFormElement,
+            "loading",
+            "Удаление..."
+          );
+
+          api
+            .removeCard({ cardId: cardInfo._id })
+            .then(() => {
+              deleteCard(cardElement);
+              closeModal(modalConfirmElement);
+            })
+            .catch((errorCode) => {
+              showErrorAlert("Не удалось удалить карточку", errorCode);
+            })
+            .finally(() =>
+              changeSubmitButtonState(modalConfirmFormElement, "ready", "Да")
+            );
+
+          isListenerAdded = false;
+        },
+        { once: true }
       );
-
-      api
-        .removeCard({ cardId: cardInfo._id })
-        .then(() => {
-          deleteCard(cardElement);
-          closeModal(modalConfirmElement);
-        })
-        .catch((errorCode) => {
-          showErrorAlert("Не удалось удалить карточку", errorCode);
-        })
-        .finally(() =>
-          changeSubmitButtonState(modalConfirmFormElement, "ready", "Да")
-        );
-    });
-  },
+    };
+  })(),
 
   /**
    * @param {HTMLDivElement} cardElement
